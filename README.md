@@ -1,4 +1,4 @@
-# <NAME> custom codes by Beltrorion Studio
+# Custom codes for smartglasscountry.com by Beltrorion Studio
 
 
 ### Acknowledgements

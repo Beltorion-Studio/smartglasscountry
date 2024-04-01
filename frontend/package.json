@@ -1,8 +1,8 @@
 {
-  "name": "@beltorion/project",
+  "name": "@beltorion/smartglasscountry",
   "version": "0.0.0",
-  "description": "COMPANY custom codes by Beltrorion Studio",
-  "homepage": "https://github.com/Beltorion-Studio/developer-starter/#readme",
+  "description": "Smartglasscountry custom codes by Beltrorion Studio",
+  "homepage": "https://github.com/Beltorion-Studio/smartglasscountry/#readme",
   "license": "ISC",
   "keywords": [],
   "author": {
@@ -11,10 +11,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Beltorion-Studio/developer-starter.git"
+    "url": "git+https://github.com/Beltorion-Studio/smartglasscountry"
   },
   "bugs": {
-    "url": "https://github.com/Beltorion-Studio/developer-starter/issues"
+    "url": "https://github.com/Beltorion-Studio/smartglasscountry/issues"
   },
   "type": "module",
   "main": "src/index.ts",
@@ -52,7 +52,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@finsweet/ts-utils": "^0.40.0"
+    "@finsweet/ts-utils": "^0.40.0",
+    "gsap": "^3.12.5"
   },
   "engines": {
     "pnpm": ">=8"
