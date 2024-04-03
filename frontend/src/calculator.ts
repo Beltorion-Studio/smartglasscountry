@@ -1,10 +1,11 @@
 import { cloneNode } from '@finsweet/ts-utils';
-import { duplicatePanel } from './utils/duplicatePanel';
+import { duplicatePanel,  } from './utils/duplicatePanel';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
     duplicatePanel();
+    removeChat();
     removeChat();
     const calculator = new Calculator();
   });
