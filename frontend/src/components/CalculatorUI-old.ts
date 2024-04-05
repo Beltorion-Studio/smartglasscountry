@@ -1,31 +1,26 @@
+// src/components/CalculatorUI.ts
+import { Calculator } from '../services/Calculator';
+import { Order } from '../models/Order';
+import { Product } from '../models/Product';
 import { cloneNode } from '@finsweet/ts-utils';
-import { duplicatePanel,  } from './utils/duplicatePanel';
-import { CalculatorUI } from './components/CalculatorUI';
 
-document.addEventListener('DOMContentLoaded', function () {
-  window.Webflow ||= [];
-  window.Webflow.push(() => {
-    duplicatePanel();
-    removeChat();
-    //const calculator = new Calculator();
-    new CalculatorUI();
-  });
-});
 
-class Calculator {
+export class CalculatorUI {
   private calculateBtn: HTMLElement;
-  private calculatorForm: HTMLFormElement;
   private orderContainer: HTMLDivElement;
   private orderRowsContainer: HTMLDivElement;
+  private calculator: Calculator;
 
   constructor() {
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
-    this.calculatorForm = document.querySelector('#wf-form-calculator') as HTMLFormElement;
     this.orderContainer = document.querySelector('#orderContainer') as HTMLDivElement;
     this.orderRowsContainer = this.orderContainer.querySelector('#orderRowsContainer') as HTMLDivElement;
 
-    if (!this.calculatorForm || !this.calculateBtn) {
-      return;
+    const order = new Order();
+    this.calculator = new Calculator(order);
+
+    if (!this.calculateBtn) {
+      throw new Error("Calculate button not found.");
     }
 
     this.calculateBtn.addEventListener('click', (event) => {
@@ -35,13 +30,17 @@ class Calculator {
   }
 
   private calculate() {
-    const productType = document.querySelector('#productType') as HTMLSelectElement;
-    const measurement = document.querySelector('#measurement') as HTMLSelectElement;
 
     const panelsData = this.collectPanelsData();
 
     console.log(panelsData);
     this.addProductsToOrderForm(panelsData);
+    const product = new Product("SomeProductType", { width: 100, height: 200 });
+    this.calculator.order.addProduct(product);
+
+    const totalPrice = this.calculator.calculate();
+    console.log(totalPrice);
+    // Update the UI with the calculated price
   }
 
   private collectPanelsData(): Record<string, number>[] {
@@ -68,17 +67,6 @@ class Calculator {
     return panelData;
   }
 
-  private calculateTotalPrice() {
-    const discount = this.orderContainer.querySelector('#discount') as HTMLDivElement;
-    const totalPrice = this.orderContainer.querySelector('#totalPrice') as HTMLDivElement;
-  }
-
-  private updateOutputs(name: string, value: number) {}
-
-  private calculateRegularPrice() {
-    const regularPrice = this.orderContainer.querySelector('#regularPrice') as HTMLDivElement;
-  }
-
   private addProductsToOrderForm(panelsData: Record<string, number>[]) {
     const orderRow = this.orderRowsContainer.querySelector(
       "[bo-elements='order-row']"
@@ -98,13 +86,5 @@ class Calculator {
   })
 
   }
-}
 
-function removeChat() {
-  setTimeout(() => {
-    const chat = document.querySelector('jdiv');
-    if (chat) {
-      chat.remove();
-    }
-  }, 3000);
 }
