@@ -54,7 +54,7 @@ export class CalculatorUI {
       }
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
       
-      const apiEndpoint = 'http://127.0.0.1:8787/order';
+      const apiEndpoint = 'https://backend.beltorion.workers.dev/order';
   
       const requestOptions = {
         method: 'POST',
