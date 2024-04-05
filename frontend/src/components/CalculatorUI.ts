@@ -17,6 +17,7 @@ export class CalculatorUI {
   private totalprice: HTMLDivElement;
   private discount: HTMLDivElement;
   private unitOfMeasurementSelector: HTMLSelectElement;
+  private productTypeSelector: HTMLSelectElement;
   private measurementTitle: HTMLDivElement;
 
   constructor() {
@@ -30,6 +31,7 @@ export class CalculatorUI {
     this.totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
     this.discount = document.querySelector('#discount') as HTMLDivElement;
     this.unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
+    this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
 
     this.bindUIEvents();
@@ -39,21 +41,39 @@ export class CalculatorUI {
     if (!this.calculateBtn) {
       throw new Error('Calculate button not found.');
     }
-
-    this.calculateBtn.addEventListener('click', (event) => {
+  
+    this.calculateBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       const panelsData = this.collectPanelsData();
       const unitOfMeasurement = this.getUnitOfMeasurement();
+      const productType = this.getProductType();
       if (unitOfMeasurement === 'mm') {
         this.measurementTitle.textContent = 'SQM';
       } else {
-          this.measurementTitle.textContent = 'SQFT';
+        this.measurementTitle.textContent = 'SQFT';
       }
-      const newOrder = new Order(panelsData, unitOfMeasurement);
-      this.newOrder = newOrder;
-      console.log(newOrder);
-      this.addProductsToOrderForm();
-      this.updateOrderTable();
+      const newOrder = new Order(panelsData, unitOfMeasurement, productType);
+      
+      const apiEndpoint = 'http://127.0.0.1:8787/order';
+  
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newOrder)
+      };
+  
+      try {
+        const response = await fetch(apiEndpoint, requestOptions);
+        const responseData = await response.json();
+        console.log(responseData);
+        this.addProductsToOrderForm(responseData);
+  
+         this.updateOrderTable(responseData);
+    } catch (error) {
+        console.error('There was an error sending the order to the API:', error);
+    }
     });
   }
 
@@ -80,7 +100,7 @@ export class CalculatorUI {
     return panelData;
   }
 
-  private addProductsToOrderForm() {
+  private addProductsToOrderForm(orderData: any): void {
     const orderRow = this.orderRowsContainer.querySelector(
       "[bo-elements='order-row']"
     ) as HTMLDivElement;
@@ -88,11 +108,11 @@ export class CalculatorUI {
       div.textContent = '';
     });
     this.orderRowsContainer.innerHTML = '';
-    const products = this.newOrder?.getProducts();
+    const products = orderData.products;
     if (!products) {
-      throw new Error('No products in order');
+        throw new Error('No products in order');
     }
-    products.forEach((product) => {
+    products.forEach((product: any) => {
       const newRow = cloneNode(orderRow);
       Object.keys(product).forEach((key) => {
         const div = newRow.querySelector(`[data-order="${key}"]`) as HTMLDivElement;
@@ -104,17 +124,17 @@ export class CalculatorUI {
     });
   }
 
-  updateOrderTable(): void {
-    const prices = this.calculator.calculateOrderPrices(this.newOrder);
-    console.log(prices);
-    this.regularPrice.textContent = '$' + String(prices.regularPrice.toFixed(2));
-    this.totalprice.textContent = '$' + String(prices.finalPrice.toFixed(2));
-    this.discount.textContent = '$' + String(prices.discount.toFixed(2));
+  updateOrderTable(orderData: any): void {
+    this.regularPrice.textContent = '$' + String(orderData.TotalRegularPrice.toFixed(2));
+    this.totalprice.textContent = '$' + String(orderData.TotalFinalPrice.toFixed(2));
+    this.discount.textContent = '$' + String(orderData.DiscountAmount.toFixed(2));
   }
 
   getUnitOfMeasurement() {
-    console.log(this.unitOfMeasurementSelector.value);
     return this.unitOfMeasurementSelector.value;
+  }
+  getProductType() {
+    return this.productTypeSelector.value;
   }
 
   calculatePrices(): void {
