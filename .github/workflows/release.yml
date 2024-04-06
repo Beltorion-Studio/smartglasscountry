@@ -27,7 +27,7 @@ jobs:
 
       - name: Change to frontend directory
         run: cd frontend
-        working-directory: frontend   # Add working directory option to ensure subsequent steps run in the frontend directory
+       # working-directory: frontend  
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
