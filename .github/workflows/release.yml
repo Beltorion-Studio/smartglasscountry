@@ -54,6 +54,7 @@ jobs:
       # If no NPM_TOKEN secret exists, just handle regular versioning
       - name: (No NPM) Create Release Pull Request
         uses: changesets/action@v1
+        working-directory: frontend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -81,6 +82,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: ${{ env.NPM_TOKEN != null && inputs.staging-branch == github.ref_name }}
+        working-directory: frontend
+
 
       # If the branch is production, deploy as usual
       - name: (Production) Create Release Pull Request and Publish to npm
@@ -92,3 +95,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: ${{ env.NPM_TOKEN != null && inputs.staging-branch != github.ref_name }}
+        working-directory: frontend
+
