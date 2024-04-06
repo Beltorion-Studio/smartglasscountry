@@ -87,6 +87,7 @@ jobs:
       - name: (Production) Create Release Pull Request and Publish to npm
         id: changesets-production
         uses: changesets/action@v1
+        working-directory: frontend
         with:
           publish: pnpm release
         env:
