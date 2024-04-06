@@ -82,7 +82,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: ${{ env.NPM_TOKEN != null && inputs.staging-branch == github.ref_name }}
-        working-directory: frontend
+          working-directory: frontend
 
 
       # If the branch is production, deploy as usual
@@ -95,5 +95,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: ${{ env.NPM_TOKEN != null && inputs.staging-branch != github.ref_name }}
-        working-directory: frontend
+          working-directory: frontend
 
