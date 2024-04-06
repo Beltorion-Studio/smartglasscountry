@@ -25,6 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Change to frontend directory
+        run: cd frontend
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
