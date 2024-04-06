@@ -2,4 +2,4 @@
 '@beltorion/smartglasscountry': major
 ---
 
-Calculator front end
+calculator front end
