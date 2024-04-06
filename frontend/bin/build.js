@@ -8,8 +8,8 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Config entrypoint files
 const ENTRY_POINTS = 
-['frontend/src/index.ts',
- 'frontend/src/calculator.ts '];
+['src/index.ts',
+ 'src/calculator.ts '];
 //const ENTRY_POINTS = ['src/index.ts', 'src/calculator.ts'];
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
