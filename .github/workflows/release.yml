@@ -25,17 +25,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Change to frontend directory 
-        uses: actions/checkout@v3 
-        with:
-          path: frontend 
-
-      - name: printing working directory 
-        run: pwd
-
-      - name: listing files in frontend directory 
-        run: ls -al
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -52,6 +41,7 @@ jobs:
 
       - name: Build Project
         run: pnpm build
+        working-directory: frontend
 
       # If no NPM_TOKEN secret exists, just handle regular versioning
       - name: (No NPM) Create Release Pull Request
