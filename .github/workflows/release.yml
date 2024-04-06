@@ -25,13 +25,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Change to frontend directory
-        run: cd frontend
-        # working-directory: frontend
-      - name: printing working directory
+      - name: Change to frontend directory 
+        uses: actions/checkout@v3 
+        with:
+          path: frontend 
+
+      - name: printing working directory 
         run: pwd
 
-      - name: listing files in frontend directory
+      - name: listing files in frontend directory 
         run: ls -al
 
       - name: Setup pnpm
