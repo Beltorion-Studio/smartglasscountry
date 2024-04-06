@@ -27,7 +27,7 @@ jobs:
 
       - name: Change to frontend directory
         run: cd frontend
-        working-directory: frontend  
+       # working-directory: frontend  
 
       - name: listing files in frontend directory
         run: ls -al
