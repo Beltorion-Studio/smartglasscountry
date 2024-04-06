@@ -54,6 +54,9 @@ jobs:
         run: pnpm build
         # working-directory: frontend
 
+      - name: Print working dir
+        run: pwd        
+
       # If no NPM_TOKEN secret exists, just handle regular versioning
       - name: (No NPM) Create Release Pull Request
         uses: changesets/action@v1      
