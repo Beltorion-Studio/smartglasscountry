@@ -53,8 +53,7 @@ jobs:
 
       # If no NPM_TOKEN secret exists, just handle regular versioning
       - name: (No NPM) Create Release Pull Request
-        uses: changesets/action@v1
-        working-directory: frontend
+        uses: changesets/action@v1      
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
