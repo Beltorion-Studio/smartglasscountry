@@ -29,7 +29,7 @@ jobs:
         run: cd frontend
         working-directory: frontend  
 
-      -name: listing files in frontend directory
+      - name: listing files in frontend directory
         run: ls -al
 
       - name: Setup pnpm
