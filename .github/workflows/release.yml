@@ -52,7 +52,7 @@ jobs:
 
       - name: Build Project
         run: pnpm build
-        working-directory: frontend
+        # working-directory: frontend
 
       # If no NPM_TOKEN secret exists, just handle regular versioning
       - name: (No NPM) Create Release Pull Request
