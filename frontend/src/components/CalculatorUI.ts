@@ -1,15 +1,12 @@
-import { Calculator } from '../services/Calculator';
 import { Order } from '../models/Order';
-import { Product } from '../models/Product';
 import { cloneNode } from '@finsweet/ts-utils';
+import { ErrorMessageUI } from './ErrorMessageUI';
 interface PanelData {
   width: number;
   height: number;
   quantity: number;
 }
 export class CalculatorUI {
-  private calculator: Calculator;
-  private newOrder: Order | null = null;
   private calculateBtn: HTMLElement;
   private orderContainer: HTMLDivElement;
   private orderRowsContainer: HTMLDivElement;
@@ -19,9 +16,9 @@ export class CalculatorUI {
   private unitOfMeasurementSelector: HTMLSelectElement;
   private productTypeSelector: HTMLSelectElement;
   private measurementTitle: HTMLDivElement;
+  private errorMessageUI: ErrorMessageUI;
 
   constructor() {
-    this.calculator = new Calculator();
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
     this.orderContainer = document.querySelector('#orderContainer') as HTMLDivElement;
     this.orderRowsContainer = this.orderContainer.querySelector(
@@ -33,18 +30,32 @@ export class CalculatorUI {
     this.unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
-
+    this.errorMessageUI = new ErrorMessageUI();
+    this.removeErrorFromInputs();
     this.bindUIEvents();
+  }
+
+  private removeErrorFromInputs() {
+    const inputFields = document.querySelectorAll('.input-field input');
+    inputFields.forEach((inputField) => {
+      inputField.addEventListener('input', () => {
+        inputField.classList.remove('form-error');
+        this.errorMessageUI.hide();
+      });
+    });
   }
 
   bindUIEvents(): void {
     if (!this.calculateBtn) {
       throw new Error('Calculate button not found.');
     }
-  
+
     this.calculateBtn.addEventListener('click', async (event) => {
       event.preventDefault();
       const panelsData = this.collectPanelsData();
+      if (panelsData.length === 0) {
+        return;
+      }
       const unitOfMeasurement = this.getUnitOfMeasurement();
       const productType = this.getProductType();
       if (unitOfMeasurement === 'mm') {
@@ -53,40 +64,48 @@ export class CalculatorUI {
         this.measurementTitle.textContent = 'SQFT';
       }
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
-      
+
       const apiEndpoint = 'https://backend.beltorion.workers.dev/order';
-  
+
       const requestOptions = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newOrder)
+        body: JSON.stringify(newOrder),
       };
-  
+
       try {
         const response = await fetch(apiEndpoint, requestOptions);
         const responseData = await response.json();
         console.log(responseData);
         this.addProductsToOrderForm(responseData);
-  
-         this.updateOrderTable(responseData);
-    } catch (error) {
+
+        this.updateOrderTable(responseData);
+      } catch (error) {
         console.error('There was an error sending the order to the API:', error);
-    }
+      }
     });
   }
 
   private collectPanelsData(): Record<string, number>[] {
     const panels = Array.from(document.querySelectorAll("[bo-elements='product-panel']"));
     const panelsData: Record<string, number>[] = [];
-    panels.forEach((panel, index) => {
-      panelsData.push(this.collectPanelData(panel));
+    panels.forEach((panel) => {
+      const panelData = this.collectPanelData(panel);
+      if (panelData) {
+        console.log('panelData');
+        panelsData.push(panelData);
+      }
     });
+
     return panelsData;
   }
 
-  private collectPanelData(panel: Element): Record<string, number> {
+  private collectPanelData(panel: Element): Record<string, number> | null {
+    if (!this.validatePanelData(panel)) {
+      return null;
+    }
     const inputFields = panel.querySelectorAll('.input-field input');
     const panelData: Record<string, number> = {};
 
@@ -94,6 +113,7 @@ export class CalculatorUI {
       const input = inputField as HTMLInputElement;
       const name = input.dataset.name as string;
       const value = Number(input.value);
+      console.log(value);
       panelData[name] = value;
     });
 
@@ -110,7 +130,7 @@ export class CalculatorUI {
     this.orderRowsContainer.innerHTML = '';
     const products = orderData.products;
     if (!products) {
-        throw new Error('No products in order');
+      throw new Error('No products in order');
     }
     products.forEach((product: any) => {
       const newRow = cloneNode(orderRow);
@@ -140,4 +160,26 @@ export class CalculatorUI {
   calculatePrices(): void {
     console.log('calculatePrices');
   }
+
+  private validatePanelData(panel: Element): boolean {
+    let isValid = true;
+    const inputFields = panel.querySelectorAll('.input-field input');
+
+    inputFields.forEach((inputField) => {
+      const input = inputField as HTMLInputElement;
+      const value = Number(input.value);
+
+      if (isNaN(value) || value <= 0) {
+        input.classList.add('form-error');
+        this.errorMessageUI.show('Please correct the highlighted fields.');
+        isValid = false;
+      } else {
+        input.classList.remove('form-error');
+        this.errorMessageUI.hide();
+      }
+    });
+
+    return isValid;
+  }
+
 }
