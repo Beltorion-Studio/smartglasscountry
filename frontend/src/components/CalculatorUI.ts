@@ -1,6 +1,7 @@
 import { Order } from '../models/Order';
 import { cloneNode } from '@finsweet/ts-utils';
 import { ErrorMessageUI } from './ErrorMessageUI';
+import { OrderService } from 'src/services/OrderService';
 interface PanelData {
   width: number;
   height: number;
@@ -17,6 +18,7 @@ export class CalculatorUI {
   private productTypeSelector: HTMLSelectElement;
   private measurementTitle: HTMLDivElement;
   private errorMessageUI: ErrorMessageUI;
+  private orderService: OrderService;
 
   constructor() {
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
@@ -31,6 +33,8 @@ export class CalculatorUI {
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
+    this.orderService = new OrderService('https://backend.beltorion.workers.dev/order');
+
     this.removeErrorFromInputs();
     this.bindUIEvents();
   }
@@ -64,28 +68,23 @@ export class CalculatorUI {
         this.measurementTitle.textContent = 'SQFT';
       }
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
-
-      const apiEndpoint = 'https://backend.beltorion.workers.dev/order';
-
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newOrder),
-      };
-
-      try {
-        const response = await fetch(apiEndpoint, requestOptions);
-        const responseData = await response.json();
-        console.log(responseData);
-        this.addProductsToOrderForm(responseData);
-
-        this.updateOrderTable(responseData);
-      } catch (error) {
-        console.error('There was an error sending the order to the API:', error);
-      }
+      const responseData = await this.submitOrder(newOrder);
+      console.log(responseData);
+      this.addProductsToOrderForm(responseData);
+      this.updateOrderTable(responseData);
     });
+  }
+
+  private async submitOrder(orderData: any): Promise<void> {
+    try {
+      const response = await this.orderService.sendOrder(orderData);
+      // console.log('Order submitted successfully:');
+      return response;
+    } catch (error) {
+      // Handle errors (e.g., show error message in the UI)
+      console.error('There was an error sending the order to the API:', error);
+      // ... Handle error
+    }
   }
 
   private collectPanelsData(): Record<string, number>[] {
@@ -94,7 +93,6 @@ export class CalculatorUI {
     panels.forEach((panel) => {
       const panelData = this.collectPanelData(panel);
       if (panelData) {
-        console.log('panelData');
         panelsData.push(panelData);
       }
     });
@@ -113,7 +111,6 @@ export class CalculatorUI {
       const input = inputField as HTMLInputElement;
       const name = input.dataset.name as string;
       const value = Number(input.value);
-      console.log(value);
       panelData[name] = value;
     });
 
@@ -181,5 +178,4 @@ export class CalculatorUI {
 
     return isValid;
   }
-
 }

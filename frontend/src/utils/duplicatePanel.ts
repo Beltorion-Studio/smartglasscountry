@@ -1,9 +1,10 @@
 import { cloneNode } from '@finsweet/ts-utils';
+import { ErrorMessageUI } from '../components/ErrorMessageUI';
 
 function duplicatePanel(): void {
   const addPanelBtn = document.querySelector("[bo-elements='addPanel']");
   if (!addPanelBtn) return;
-
+  const errorMessageUI = new ErrorMessageUI();
   let panelCount = 1;
 
   setupAddPanelClickListener(addPanelBtn, () => handlePanelDuplication(panelCount++));
@@ -41,7 +42,7 @@ function duplicatePanel(): void {
       const input = inputField.querySelector('input');
       input?.addEventListener('input', () => {
         input.classList.remove('form-error');
-        hideErrorMessage();
+        errorMessageUI.hide();
       });
       if (label && input) {
         const labelFor = label.getAttribute('for');
@@ -55,20 +56,8 @@ function duplicatePanel(): void {
       }
     });
   }
-  function hideErrorMessage(): void {
-    const messageDiv = document.querySelector('#form-message') as HTMLDivElement;
-    messageDiv.style.display = 'none';
-  }
 
-  function removeErrorFromInputs() {
-    const inputFields = document.querySelectorAll('.input-field input');
-    inputFields.forEach((inputField) => {
-      inputField.addEventListener('input', () => {
-        inputField.classList.remove('form-error');
-        hideErrorMessage();
-      });
-    });
-  }
+
 
   function appendClonedPanel(productPanel: HTMLDivElement, newPanel: HTMLDivElement): void {
     const removeBtn = document.createElement('button');
