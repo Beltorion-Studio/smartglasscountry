@@ -1,7 +1,7 @@
 import { Order } from '../models/Order';
 import { cloneNode } from '@finsweet/ts-utils';
 import { ErrorMessageUI } from './ErrorMessageUI';
-import { OrderService } from 'src/services/OrderService';
+import { ApiServices } from 'src/services/ApiServices';
 interface PanelData {
   width: number;
   height: number;
@@ -18,7 +18,7 @@ export class CalculatorUI {
   private productTypeSelector: HTMLSelectElement;
   private measurementTitle: HTMLDivElement;
   private errorMessageUI: ErrorMessageUI;
-  private orderService: OrderService;
+  private orderService: ApiServices;
 
   constructor() {
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
@@ -33,7 +33,7 @@ export class CalculatorUI {
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
-    this.orderService = new OrderService('https://backend.beltorion.workers.dev/order');
+    this.orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
 
     this.removeErrorFromInputs();
     this.bindUIEvents();
@@ -77,7 +77,7 @@ export class CalculatorUI {
 
   private async submitOrder(orderData: any): Promise<void> {
     try {
-      const response = await this.orderService.sendOrder(orderData);
+      const response = await this.orderService.sendData(orderData);
       // console.log('Order submitted successfully:');
       return response;
     } catch (error) {

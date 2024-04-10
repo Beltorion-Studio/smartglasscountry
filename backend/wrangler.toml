@@ -1,12 +1,17 @@
 name = "backend"
+main = "src/index.ts"
 compatibility_date = "2023-12-01"
+
+kv_namespaces = [
+    {binding = "DASHBOARD_SETTINGS", id = "1341b22f2b2c414a9a664b25e73c072c", preview_id = "1341b22f2b2c414a9a664b25e73c072c" }
+]
 
 # [vars]
 # MY_VAR = "my-variable"
 
 # [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# binding = "DASHBOARD_SETTINGS"
+# id = "1341b22f2b2c414a9a664b25e73c072c"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"

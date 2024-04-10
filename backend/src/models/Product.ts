@@ -23,7 +23,7 @@ export class Product {
     this.height = height;
     this.quantity = quantity;
     this.unitOfMeasurement = unitOfMeasurement;
-    
+
     if (this.unitOfMeasurement === 'inches') {
       this.squaredMeasurement = this.getSquareFootage();
     } else {
@@ -60,7 +60,12 @@ export class Product {
   }
 
   getTotalPrice(): number {
-    const totalPrice = this.squareFootage * Number(this.quantity) * Number(this.unitPrice);
+    let totalPrice = this.squaredMeasurement * Number(this.quantity) * Number(this.unitPrice);
+
+    if (this.unitOfMeasurement === 'mm') {
+      totalPrice = totalPrice * 10.7639;
+    }
+
     return Number(totalPrice.toFixed(2));
   }
 }

@@ -1,3 +1,5 @@
+import { ProductParameters } from './ProductParameters';
+
 export class Dashboard {
   public discount: number;
   public salesforceApiKey: string;
