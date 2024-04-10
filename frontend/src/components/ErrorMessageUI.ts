@@ -3,7 +3,7 @@ export class ErrorMessageUI {
   private messageDiv: HTMLDivElement;
 
   constructor() {
-    this.messageDiv = document.querySelector('#form-message') as HTMLDivElement;
+    this.messageDiv = document.querySelector("[bo-elements='form-message']") as HTMLDivElement;
   }
 
   public show(message: string): void {

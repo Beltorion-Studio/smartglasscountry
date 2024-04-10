@@ -1,15 +1,18 @@
 import { ApiServices } from 'src/services/ApiServices';
+import { ErrorMessageUI } from './ErrorMessageUI';
 
 export class DashboardManager {
   private dashboardValues: Record<string, string> = {};
   private apiService: ApiServices;
   private dashboardInputs: HTMLInputElement[];
+  private errorMessageUI: ErrorMessageUI;
 
   constructor() {
     this.dashboardInputs = Array.from(
       document.querySelectorAll('[data-dashboard]')
     ) as HTMLInputElement[];
     this.setupSaveButtonListener();
+    this.errorMessageUI = new ErrorMessageUI();
     this.apiService = new ApiServices('http://127.0.0.1:8787/dashboard');
     // this.apiService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
     this.initializeDashboardValues().catch(console.error);
@@ -21,7 +24,7 @@ export class DashboardManager {
       this.setDashboardValues(dashboardData);
     } catch (error) {
       console.error('Error initializing dashboard values:', error);
-      // ... Handle error (e.g., show error message in the UI)
+      this.errorMessageUI.show('Error initializing dashboard values: ' + error);
     }
   }
 
@@ -61,7 +64,8 @@ export class DashboardManager {
       this.setDashboardValues(responseData);
     } catch (error) {
       console.error('Error saving dashboard values:', error);
-      // ... Handle error (e.g., show error message in the UI)
+      this.errorMessageUI.show('Error saving dashboard values: ' + error);
+
     }
   }
 
