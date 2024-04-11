@@ -37,7 +37,8 @@ export class CalculatorUI {
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
-    this.orderService = new ApiServices('http://127.0.0.1:8787/order');
+    //this.orderService = new ApiServices('http://127.0.0.1:8787/order');
+    this.orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
     this.dashboardService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
     this.removeErrorFromInputs();
     this.bindUIEvents();
