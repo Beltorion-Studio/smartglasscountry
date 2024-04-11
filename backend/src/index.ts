@@ -20,9 +20,4 @@ app.get('/', (c) => {
 orderRoutes(app);
 dashboardRoutes(app);
 
-app.get('/data', async (c) => {
-  const items = await c.env.DASHBOARD_SETTINGS.list();
-  return c.json(items);
-});
-
 export default app;

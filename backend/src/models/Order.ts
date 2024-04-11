@@ -2,16 +2,17 @@ import { Product } from './Product';
 
 export class Order {
   private products: Product[] = [];
-  private discount: number = 0.22;
+  private discount: number;
   private unitOfMeasurement: string;
   private productType: string;
   private TotalRegularPrice: number = 0;
   private DiscountAmount: number = 0;
   private TotalFinalPrice: number = 0;
 
-  constructor(unitOfMeasurement: string, productType: string) {
+  constructor(unitOfMeasurement: string, productType: string, discount: number = 0) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
+    this.discount = discount;
   }
 
   addProduct(product: Product): void {
@@ -27,7 +28,7 @@ export class Order {
   }
 
   calculateDiscount(): number {
-    return this.calculateTotalRegularPrice() * this.discount;
+    return this.calculateTotalRegularPrice() * this.discount * 0.01;
   }
 
   calculateTotalFinalPrice(): number {

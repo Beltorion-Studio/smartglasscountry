@@ -26,9 +26,15 @@ const deleteData = async (kv: KVNamespace, key: string): Promise<void> => {
   await kv.delete(key);
 };
 
+const getField = async (kv: KVNamespace, key: string, field: string): Promise<any> => {
+  const data = await getData(kv, key);
+  return data[field];
+};
+
 export const dbOperations = {
   putData,
   getData,
   updateData,
   deleteData,
+  getField,
 };

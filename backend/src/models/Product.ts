@@ -15,10 +15,11 @@ export class Product {
     height: number,
     quantity: number,
     unitOfMeasurement: string,
-    productType: string
+    productType: string,
+    unitPrice: number
   ) {
     this.productType = productType;
-    this.unitPrice = 45;
+    this.unitPrice = unitPrice;
     this.width = width;
     this.height = height;
     this.quantity = quantity;

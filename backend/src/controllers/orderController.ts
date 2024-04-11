@@ -1,20 +1,33 @@
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
+import { dbOperations } from '../services/DbOperations';
+import { getUnitPrice } from '../services/utils';
 //import { HonoRequest } from 'hono';
 
-export const createOrder = async (ctx) => {
-  const orderData = await ctx.req.json();
+export const createOrder = async (c) => {
+  const orderData = await c.req.json();
   const { unitOfMeasurement, productType, products } = orderData;
-  const order = new Order(unitOfMeasurement, productType);
+  //const order = await Order.createOrder(ctx, unitOfMeasurement, productType);
+  const dashboardData = await dbOperations.getData(c.env.DASHBOARD_SETTINGS, 'dashboard');
+  const { discount } = dashboardData;
+  const productPrice = getUnitPrice(dashboardData, productType);
+  console.log(productPrice);
+
+  const order = new Order(unitOfMeasurement, productType, discount);
 
   products.forEach((p) => {
-    const product = new Product(p.width, p.height, p.quantity, unitOfMeasurement, productType);
+    const product = new Product(
+      p.width,
+      p.height,
+      p.quantity,
+      unitOfMeasurement,
+      productType,
+      productPrice
+    );
     order.addProduct(product);
   });
 
   order.calculatePrices();
-  console.log(order);
-
-  // await db.saveOrder(order);
-  return ctx.json(order);
+  //console.log(order);
+  return c.json(order);
 };
