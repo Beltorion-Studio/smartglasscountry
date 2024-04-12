@@ -22,6 +22,8 @@ export class CalculatorUI {
   private orderService: ApiServices;
   private dashboardService: ApiServices;
   private dashboardData!: Record<string, string>;
+  private productMaxWidth: string = '';
+  private productMaxHeight: string = '';
 
   constructor() {
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
@@ -44,6 +46,7 @@ export class CalculatorUI {
     this.bindUIEvents();
     this.fetchDashboardValues().then((data) => (this.dashboardData = data));
     this.addEventListenerToProductTypeSelector();
+    this.addEventListenerToMeasurementSelector();
   }
 
   private removeErrorFromInputs() {
@@ -70,7 +73,6 @@ export class CalculatorUI {
       const unitOfMeasurement = this.getUnitOfMeasurement();
       const productType = this.getProductType();
       this.validateProductType(productType);
-      console.log(productType);
       if (unitOfMeasurement === 'mm') {
         this.measurementTitle.textContent = 'SQM';
       } else {
@@ -164,46 +166,73 @@ export class CalculatorUI {
     return this.productTypeSelector.value;
   }
 
-  setMaxWidth(productType: string) {
-    const productMaxWidth: string = this.dashboardData[`${productType}Width`];
-    const maxWidthText = document.querySelectorAll(
-      "[bo-elements='max-width']"
-    ) as NodeListOf<HTMLDivElement>;
-    const maxWidthAttr = document.querySelectorAll(
-      "[projectGroup='width']"
+  private convertToInches(value: string): string {
+    return (parseFloat(value) / 25.4).toFixed(2);
+  }
+
+  private updateDOMElements(selector: string, attribute: string, value: string, unit: string) {
+    const textElements = document.querySelectorAll(selector) as NodeListOf<HTMLDivElement>;
+    const attrElements = document.querySelectorAll(
+      `[projectGroup='${attribute}']`
     ) as NodeListOf<HTMLInputElement>;
-    maxWidthText.forEach((element) => {
-      element.textContent = productMaxWidth;
+    textElements.forEach((element) => {
+      element.textContent = `${value} ${unit}`;
     });
-    maxWidthAttr.forEach((element) => {
-      element.setAttribute('max', productMaxWidth);
+    attrElements.forEach((element) => {
+      element.setAttribute('max', value);
     });
   }
 
-  setMaxHeight(productType: string) {
-    const productMaxHeight: string = this.dashboardData[`${productType}Height`];
-    const maxHeightText = document.querySelectorAll(
-      "[bo-elements='max-height']"
-    ) as NodeListOf<HTMLDivElement>;
-    const maxWidthAttr = document.querySelectorAll(
-      "[projectGroup='width']"
-    ) as NodeListOf<HTMLInputElement>;
-    maxHeightText.forEach((element) => {
-      element.textContent = productMaxHeight;
-    });
-    maxWidthAttr.forEach((element) => {
-      element.setAttribute('max', productMaxHeight);
-    });
+  setMaxWidth(productType: string, unitOfMeasurement: string) {
+    let productMaxWidth: string = this.dashboardData[`${productType}Width`];
+    if (unitOfMeasurement === 'inches') {
+      productMaxWidth = this.convertToInches(productMaxWidth);
+    }
+    this.updateDOMElements(
+      "[bo-elements='max-width']",
+      'width',
+      productMaxWidth,
+      unitOfMeasurement
+    );
+  }
+
+  setMaxHeight(productType: string, unitOfMeasurement: string) {
+    let productMaxHeight: string = this.dashboardData[`${productType}Height`];
+    if (unitOfMeasurement === 'inches') {
+      productMaxHeight = this.convertToInches(productMaxHeight);
+    }
+    this.updateDOMElements(
+      "[bo-elements='max-height']",
+      'height',
+      productMaxHeight,
+      unitOfMeasurement
+    );
   }
 
   setMaxWidthAndHeight() {
     const productType = this.getProductType();
-    this.setMaxHeight(productType);
-    this.setMaxWidth(productType);
+    const unitOfMeasurement = this.getUnitOfMeasurement();
+    let maxWidth = this.dashboardData[`${productType}Width`];
+    let maxHeight = this.dashboardData[`${productType}Height`];
+
+    if (unitOfMeasurement === 'inches') {
+      maxWidth = this.convertToInches(maxWidth);
+      maxHeight = this.convertToInches(maxHeight);
+    }
+
+    this.productMaxWidth = maxWidth;
+    this.productMaxHeight = maxHeight;
+    this.setMaxHeight(productType, unitOfMeasurement);
+    this.setMaxWidth(productType, unitOfMeasurement);
   }
 
   addEventListenerToProductTypeSelector() {
     this.productTypeSelector.addEventListener('change', () => {
+      this.setMaxWidthAndHeight();
+    });
+  }
+  addEventListenerToMeasurementSelector() {
+    this.unitOfMeasurementSelector.addEventListener('change', () => {
       this.setMaxWidthAndHeight();
     });
   }
@@ -226,35 +255,40 @@ export class CalculatorUI {
 
   private validatePanelData(panel: Element): boolean {
     let isValid = true;
-    const productType = this.getProductType();
-    const productMaxHeight: number = parseInt(this.dashboardData[`${productType}Height`]);
-    const productMaxWidth: number = parseInt(this.dashboardData[`${productType}Width`]);
-
+    const productMaxWidth = this.productMaxWidth;
+    const productMaxHeight = this.productMaxHeight;
     const inputFields = panel.querySelectorAll('.input-field input');
-
-    inputFields.forEach((inputField) => {
+  
+    // Perform all validations first before manipulating the UI error messages.
+    for (const inputField of inputFields) {
       const input = inputField as HTMLInputElement;
       const value = Number(input.value);
       const projectGroup = input.getAttribute('projectGroup');
-
+  
       if (isNaN(value) || value <= 0) {
         input.classList.add('form-error');
         this.errorMessageUI.show('Please correct the highlighted fields.');
         isValid = false;
-      } else if (projectGroup === 'width' && value > productMaxWidth) {
+      } else if (projectGroup === 'width' && value > parseInt(productMaxWidth)) {
         input.classList.add('form-error');
         this.errorMessageUI.show(`Width cannot be more than ${productMaxWidth}.`);
         isValid = false;
-      } else if (projectGroup === 'height' && value > productMaxHeight) {
+        break; 
+      } else if (projectGroup === 'height' && value > parseInt(productMaxHeight)) {
         input.classList.add('form-error');
         this.errorMessageUI.show(`Height cannot be more than ${productMaxHeight}.`);
         isValid = false;
-      } else {
-        input.classList.remove('form-error');
-        this.errorMessageUI.hide();
+        break; 
       }
-    });
-
+    }
+  
+    if (isValid) {
+      inputFields.forEach(inputField => {
+        inputField.classList.remove('form-error');
+      });
+      this.errorMessageUI.hide();
+    }
+  
     return isValid;
   }
 }
