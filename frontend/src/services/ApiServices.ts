@@ -1,4 +1,3 @@
-// OrderService.ts
 export class ApiServices {
   private apiEndpoint: string;
 
@@ -19,14 +18,14 @@ export class ApiServices {
     }
   }
 
-  public async sendData(orderData: any): Promise<any> {
+  public async sendData(data: any): Promise<any> {
     try {
       const requestOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify(data),
       };
 
       const response = await fetch(this.apiEndpoint, requestOptions);
@@ -39,6 +38,22 @@ export class ApiServices {
       throw error;
     }
   }
+  public async sendForm(formData: FormData): Promise<any> {
+    try {
+        const requestOptions = {
+            method: 'POST',
+            body: formData 
+        };
 
-  // Add more methods related to order operations as needed.
+        const response = await fetch(this.apiEndpoint, requestOptions);
+        if (!response.ok) {
+            throw new Error('Error sending form');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('ApiServices sendForm:', error);
+        throw error;
+    }
+}
+
 }

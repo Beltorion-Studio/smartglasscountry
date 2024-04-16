@@ -2,25 +2,27 @@
 
 import { dbOperations } from '../services/DbOperations';
 
-export const setDashboardData = async (ctx) => {
-  const dashboardData = await ctx.req.json();
-  await dbOperations.putData(ctx.env.DASHBOARD_SETTINGS, 'dashboard', dashboardData);
+async function setDashboardData(c) {
+  const dashboardData = await c.req.json();
+  await dbOperations.putData(c.env.DASHBOARD_SETTINGS, 'dashboard', dashboardData);
   console.log(dashboardData);
-  return ctx.json(dashboardData);
-};
+  return c.json(dashboardData);
+}
 
-export const getDashboardData = async (ctx) => {
+async function getDashboardData(c) {
   try {
-    const dashboardData = await dbOperations.getData(ctx.env.DASHBOARD_SETTINGS, 'dashboard');
+    const dashboardData = await dbOperations.getData(c.env.DASHBOARD_SETTINGS, 'dashboard');
     console.log(dashboardData);
 
     if (!dashboardData) {
-      return ctx.json({ error: 'Not found' }, { status: 404 });
+      return c.json({ error: 'Not found' }, { status: 404 });
     }
 
-    return ctx.json(dashboardData);
+    return c.json(dashboardData);
   } catch (error) {
     console.error(error);
-    return ctx.json({ error: 'An error occurred' }, { status: 500 });
+    return c.json({ error: 'An error occurred' }, { status: 500 });
   }
-};
+}
+
+export { getDashboardData, setDashboardData };

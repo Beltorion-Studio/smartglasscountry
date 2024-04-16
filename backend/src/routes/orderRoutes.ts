@@ -1,11 +1,8 @@
 import { Hono } from 'hono';
+import { Bindings } from 'hono/types';
 
 import { createOrder } from '../controllers/orderController';
-type Contex = {
-  Bindings: {
-    DASHBOARD_SETTINGS: KVNamespace;
-  };
-};
-export const orderRoutes = (app: Hono<Contex>) => {
+
+export const orderRoutes = (app: Hono<{ Bindings: Bindings }>) => {
   app.post('/order', createOrder);
 };

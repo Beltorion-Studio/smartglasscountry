@@ -1,16 +1,12 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { Bindings } from 'hono/types';
 
 import { dashboardRoutes } from './routes/dashboardRoutes';
+import { formRoutes } from './routes/formRoutes';
 import { orderRoutes } from './routes/orderRoutes';
 
-type Contex = {
-  Bindings: {
-    DASHBOARD_SETTINGS: KVNamespace;
-  };
-};
-
-const app = new Hono<Contex>();
+const app = new Hono<{ Bindings: Bindings }>();
 app.use('*', cors());
 
 app.get('/', (c) => {
@@ -19,5 +15,6 @@ app.get('/', (c) => {
 
 orderRoutes(app);
 dashboardRoutes(app);
+formRoutes(app);
 
 export default app;

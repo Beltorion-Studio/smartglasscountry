@@ -1,12 +1,9 @@
 import { Hono } from 'hono';
+import { Bindings } from 'hono/types';
 
 import { getDashboardData, setDashboardData } from '../controllers/dashboardController';
-type Contex = {
-  Bindings: {
-    DASHBOARD_SETTINGS: KVNamespace;
-  };
-};
-export const dashboardRoutes = (app: Hono<Contex>) => {
+
+export const dashboardRoutes = (app: Hono<{ Bindings: Bindings }>) => {
   app.post('/dashboard', setDashboardData);
   app.get('/dashboard', getDashboardData);
 };

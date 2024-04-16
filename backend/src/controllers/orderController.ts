@@ -4,7 +4,7 @@ import { dbOperations } from '../services/DbOperations';
 import { getUnitPrice } from '../services/utils';
 //import { HonoRequest } from 'hono';
 
-export const createOrder = async (c) => {
+async function createOrder(c) {
   const orderData = await c.req.json();
   const { unitOfMeasurement, productType, products } = orderData;
   //const order = await Order.createOrder(ctx, unitOfMeasurement, productType);
@@ -30,4 +30,6 @@ export const createOrder = async (c) => {
   order.calculatePrices();
   //console.log(order);
   return c.json(order);
-};
+}
+
+export { createOrder };
