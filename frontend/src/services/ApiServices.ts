@@ -18,6 +18,24 @@ export class ApiServices {
     }
   }
 
+  public async fetchDataWithParams(params?: { [key: string]: any }): Promise<any> {
+    try {
+      // Construct query string from params if they exist
+      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      const urlWithParams = `${this.apiEndpoint}${queryString}`;
+      console.log(urlWithParams);
+     // const response = await fetch(urlWithParams);
+      const response = await fetch(urlWithParams);
+      if (!response.ok) {
+        throw new Error('Error fetching data');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('fetchData error:', error);
+      throw error;
+    }
+  }
+
   public async sendData(data: any): Promise<any> {
     try {
       const requestOptions = {

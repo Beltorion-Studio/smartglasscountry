@@ -41,7 +41,9 @@ export class FormManager {
       console.log(formObject);
       try {
         const response = await this.formService.sendData(formObject);
+        console.log(response)
         if (response.success) {
+          window.location.href = response.redirectUrl;
           console.log('Form submitted successfully');
         } else {
           console.error('Form submission failed');

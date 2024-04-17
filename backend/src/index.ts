@@ -7,7 +7,14 @@ import { formRoutes } from './routes/formRoutes';
 import { orderRoutes } from './routes/orderRoutes';
 
 const app = new Hono<{ Bindings: Bindings }>();
-app.use('*', cors());
+const corsOptions = {
+  origin: 'https://smartglass.webflow.io',
+  allowHeaders: ['Origin, X-Requested-With, Content-Type, Accept, Authorization'], // Add other headers you want to allow
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+  maxAge: 86400,
+};
+
+app.use('*', cors(corsOptions));
 
 app.get('/', (c) => {
   return c.text('Hello smartglasscountry!');

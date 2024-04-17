@@ -1,3 +1,4 @@
+import { getCookie } from 'hono/cookie';
 import { ZodError } from 'zod';
 
 import { formSchema } from '../models/contactFormSchema';
@@ -5,6 +6,8 @@ import { sanitizeData } from '../services/sanitizeData';
 
 async function validateForm(c) {
   try {
+    const allCookies = getCookie(c);
+    console.log(allCookies);
     const form = await c.req.json();
     const sanitizedForm = sanitizeData(form);
 
@@ -14,7 +17,11 @@ async function validateForm(c) {
       return c.json({ errors: error.issues }, { status: 400 });
     }
 
-    return c.json({ success: true }, { status: 200 });
+    return c.json({
+      success: true,
+      status: 200,
+      redirectUrl: 'https://smartglass.webflow.io/product-detail',
+    });
   } catch (err) {
     console.error(err);
     return c.json({ error: 'Internal server error' }, { status: 500 });

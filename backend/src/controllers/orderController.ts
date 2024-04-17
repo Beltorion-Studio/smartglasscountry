@@ -1,18 +1,17 @@
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { dbOperations } from '../services/DbOperations';
+import { getSession, setSession } from '../services/session';
 import { getUnitPrice } from '../services/utils';
 //import { HonoRequest } from 'hono';
 
 async function createOrder(c) {
   const orderData = await c.req.json();
   const { unitOfMeasurement, productType, products } = orderData;
-  //const order = await Order.createOrder(ctx, unitOfMeasurement, productType);
   const dashboardData = await dbOperations.getData(c.env.DASHBOARD_SETTINGS, 'dashboard');
   const { discount } = dashboardData;
   const productPrice = getUnitPrice(dashboardData, productType);
-  console.log(productPrice);
-
+  const orderToken = generateUniqueToken();
   const order = new Order(unitOfMeasurement, productType, discount);
 
   products.forEach((p) => {
@@ -28,8 +27,28 @@ async function createOrder(c) {
   });
 
   order.calculatePrices();
-  //console.log(order);
+
+  await setSession(c, orderToken, order, 900);
+
+  return c.json({
+    orderToken: orderToken,
+    redirectUrl: 'https://smartglass.webflow.io/contact-form',
+  });
+}
+
+async function getOrder(c) {
+  const orderToken = c.req.query('orderToken');
+
+  const order = await getSession(c, orderToken);
+  if (!order) {
+    return c.json({ error: 'Order not found' }, { status: 404 });
+  }
+
   return c.json(order);
 }
 
-export { createOrder };
+function generateUniqueToken() {
+  const token = crypto.randomUUID();
+  return token;
+}
+export { createOrder, getOrder };

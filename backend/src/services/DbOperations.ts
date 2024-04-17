@@ -4,13 +4,23 @@
 // It should be defined in your Cloudflare Workers environment or you may need
 // to define it appropriately based on the actual API provided by Cloudflare.
 interface KVNamespace {
-  put(key: string, value: string): Promise<void>;
+  put(key: string, value: string, options?: { expirationTtl: number }): Promise<void>;
   get(key: string, type: 'json'): Promise<any>;
   delete(key: string): Promise<void>;
 }
 
-const putData = async (kv: KVNamespace, key: string, value: any): Promise<void> => {
-  await kv.put(key, JSON.stringify(value));
+const putData = async (
+  kv: KVNamespace,
+  key: string,
+  value: any,
+  secondsFromNow?: number
+): Promise<void> => {
+  const stringValue = JSON.stringify(value);
+  if (secondsFromNow) {
+    await kv.put(key, stringValue, { expirationTtl: secondsFromNow });
+  } else {
+    await kv.put(key, stringValue);
+  }
 };
 
 const getData = async (kv: KVNamespace, key: string): Promise<any> => {
