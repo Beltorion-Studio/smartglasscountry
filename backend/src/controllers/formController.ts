@@ -11,16 +11,23 @@ async function validateForm(c) {
     const form = await c.req.json();
     const sanitizedForm = sanitizeData(form);
 
-    console.log(form);
+    console.log(form.location);
     const { error } = validateFormData(sanitizedForm);
     if (error) {
       return c.json({ errors: error.issues }, { status: 400 });
+    }
+    const { location } = sanitizedForm;
+    let redirectUrl;
+    if (location === 'usaCanada') {
+      redirectUrl = 'https://smartglass.webflow.io/product-detail?country=true';
+    } else {
+      redirectUrl = 'https://smartglass.webflow.io/product-detail?country=false';
     }
 
     return c.json({
       success: true,
       status: 200,
-      redirectUrl: 'https://smartglass.webflow.io/product-detail',
+      redirectUrl: redirectUrl,
     });
   } catch (err) {
     console.error(err);

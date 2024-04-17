@@ -1,12 +1,14 @@
 import { cloneNode } from '@finsweet/ts-utils';
 import { ApiServices } from './services/ApiServices';
 import { removeChat } from './utils/removeChat';
+import { ErrorMessageUI } from './components/ErrorMessageUI';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
     console.log('DOM content loaded');
     removeChat();
+    setButtons();
     displayOrders();
   });
 });
@@ -19,6 +21,8 @@ const discount = document.querySelector('#discount') as HTMLDivElement;
 const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
 //const orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
 const orderService = new ApiServices('http://127.0.0.1:8787/order');
+const urlParams = getUrlParams();
+const errorMessageUI = new ErrorMessageUI();
 
 async function displayOrders() {
   const orderData = await fetchOrder();
@@ -28,7 +32,6 @@ async function displayOrders() {
     console.log('Session is expired, please make a new order.');
     return;
   }
-
   addProductsToOrderForm(orderData);
   updateOrderTable(orderData);
 }
@@ -44,9 +47,9 @@ function addProductsToOrderForm(orderData: any): void {
   products.forEach((product: any) => {
     const newRow = cloneNode(orderRow);
     Object.keys(product).forEach((key) => {
-      const div = newRow.querySelector(`[data-order="${key}"]`) as HTMLDivElement;
-      if (div) {
-        div.textContent = String(product[key]);
+      const cell = newRow.querySelector(`[data-order="${key}"]`) as HTMLInputElement;
+      if (cell) {
+        cell.value = String(product[key]);
       }
     });
     orderRowsContainer.appendChild(newRow);
@@ -76,86 +79,39 @@ function updateOrderTable(orderData: any): void {
   discountValue.textContent = String(orderData.discount);
 }
 
-export class DisplayOrders {
-  private orderContainer: HTMLDivElement;
-  private orderRowsContainer: HTMLDivElement;
-  private orderRows: HTMLDivElement[] = [];
-  private totalprice: HTMLDivElement;
-  private regularPrice: HTMLDivElement;
-  private discount: HTMLDivElement;
-  private discountValue: HTMLElement;
-  private orderService: ApiServices;
-  private dashboardData!: Record<string, string>;
+function convertToInches(value: string): string {
+  return (parseFloat(value) / 25.4).toFixed(2);
+}
 
-  constructor() {
-    this.orderContainer = document.querySelector('#orderContainer') as HTMLDivElement;
-    this.orderRowsContainer = this.orderContainer.querySelector(
-      '#orderRowsContainer'
-    ) as HTMLDivElement;
-    this.regularPrice = document.querySelector('#regularPrice') as HTMLDivElement;
-    this.totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
-    this.discount = document.querySelector('#discount') as HTMLDivElement;
-    this.discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-    //this.orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
-    this.orderService = new ApiServices('http://127.0.0.1:8787/order');
+function getUrlParams(): Record<string, string> {
+  const urlParams = new URLSearchParams(window.location.search);
+  const params: Record<string, string> = {};
+  urlParams.forEach((value, key) => {
+    params[key] = value;
+  });
+  return params;
+}
 
-    this.addProductsToOrderForm().catch((error) => {
-      console.error('Error adding products to order form:', error);
-      //ErrorMessageUI.show('Failed to load products.');
-    });
+function setButtons() {
+  const depositBtn = document.querySelector("[bo-elements='depositBtn']") as HTMLButtonElement;
+  const buyBtn = document.querySelector("[bo-elements='buyBtn']") as HTMLButtonElement;
+  console.log(urlParams.country);
+  if (urlParams.country === 'true') {
+    depositBtn.addEventListener('click', () => redirectToCheckout());
+  } else {
+    depositBtn.disabled = true;
+    errorMessageUI.show(
+      'Customers from outside of USA and Canada, please contact the merchant directly via email or phone'
+    );
   }
 
-  private async addProductsToOrderForm(): Promise<void> {
-    const orderRow = this.orderRowsContainer.querySelector(
-      "[bo-elements='order-row']"
-    ) as HTMLDivElement;
-    orderRow.querySelectorAll('div[data-order]').forEach((div) => {
-      div.textContent = '';
-    });
-    this.orderRowsContainer.innerHTML = '';
-    let orderToken = this.getOrderToken();
-    console.log(orderToken);
-    const params = { orderToken: orderToken };
-    const products = await this.fetchOrder(params);
-    console.log(products);
+  buyBtn.addEventListener('click', () => redirectToSamples());
 
-    if (!products) {
-      // ErrorMessageUI.show('No products in order');
-      return;
-    }
-    products.forEach((product: any) => {
-      const newRow = cloneNode(orderRow);
-      Object.keys(product).forEach((key) => {
-        const div = newRow.querySelector(`[data-order="${key}"]`) as HTMLDivElement;
-        if (div) {
-          div.textContent = String(product[key]);
-        }
-      });
-      this.orderRowsContainer.appendChild(newRow);
-    });
+  function redirectToCheckout() {
+    window.location.href = '/calculator';
   }
 
-  private getOrderToken(): string | null {
-    return sessionStorage.getItem('orderToken');
-  }
-
-  async fetchOrder(): Promise<Record<string, string>> {
-    const orderToken = this.getOrderToken();
-    const params = {
-      orderToken: orderToken,
-    };
-    const responseData = await this.orderService.fetchDataWithParams(params);
-    return responseData;
-  }
-
-  updateOrderTable(orderData: any): void {
-    this.regularPrice.textContent = '$' + String(orderData.TotalRegularPrice.toFixed(2));
-    this.totalprice.textContent = '$' + String(orderData.TotalFinalPrice.toFixed(2));
-    this.discount.textContent = '$' + String(orderData.DiscountAmount.toFixed(2));
-    this.discountValue.textContent = String(orderData.discount);
-  }
-
-  private convertToInches(value: string): string {
-    return (parseFloat(value) / 25.4).toFixed(2);
+  function redirectToSamples() {
+    window.location.href = 'samples.html';
   }
 }

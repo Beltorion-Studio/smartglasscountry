@@ -65,11 +65,13 @@ export class CalculatorUI {
       const unitOfMeasurement = this.getUnitOfMeasurement();
       const productType = this.getProductType();
       this.validateProductType(productType);
+      /*
       if (unitOfMeasurement === 'mm') {
         this.measurementTitle.textContent = 'SQM';
       } else {
         this.measurementTitle.textContent = 'SQFT';
       }
+      */
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
       const responseData = await this.submitOrder(newOrder);
       if (responseData.redirectUrl && responseData.orderToken) {
