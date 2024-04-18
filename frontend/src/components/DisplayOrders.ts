@@ -2,7 +2,8 @@ import { Order } from '../models/Order';
 import { cloneNode } from '@finsweet/ts-utils';
 import { ErrorMessageUI } from './ErrorMessageUI';
 import { ApiServices } from 'src/services/ApiServices';
-
+import {globalSettings} from 'src/settings/globalSettings';
+/*
 
 export class DisplayOrders {
   private orderContainer: HTMLDivElement;
@@ -24,8 +25,7 @@ export class DisplayOrders {
     this.totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
     this.discount = document.querySelector('#discount') as HTMLDivElement;
     this.discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-    //this.orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
-    this.orderService = new ApiServices('http://127.0.0.1:8787/order');
+    this.orderService = new ApiServices(globalSettings.orderUrl);
 
     this.addProductsToOrderForm().catch((error) => {
       console.error('Error adding products to order form:', error);
@@ -87,3 +87,4 @@ export class DisplayOrders {
 
 
 }
+*/

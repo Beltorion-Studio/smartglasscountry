@@ -8,8 +8,8 @@ import { orderRoutes } from './routes/orderRoutes';
 
 const app = new Hono<{ Bindings: Bindings }>();
 const corsOptions = {
-  origin: 'https://smartglass.webflow.io',
-  allowHeaders: ['Origin, X-Requested-With, Content-Type, Accept, Authorization'], // Add other headers you want to allow
+  origin: '*',
+  allowHeaders: ['Origin, X-Requested-With, Content-Type, Accept, Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
   maxAge: 86400,
 };

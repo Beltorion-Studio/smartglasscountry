@@ -1,6 +1,7 @@
 import { formSchema } from 'src/models/contactFormSchema';
 import { ApiServices } from 'src/services/ApiServices';
 import { ZodError } from 'zod';
+import { globalSettings } from 'src/settings/globalSettings';
 
 export class FormManager {
   private form: HTMLFormElement;
@@ -10,7 +11,7 @@ export class FormManager {
   constructor(formId: string) {
     this.form = document.querySelector(formId) as HTMLFormElement;
     this.submitButton = this.form.querySelector('input[type="submit"]') as HTMLInputElement;
-    this.formService = new ApiServices('http://127.0.0.1:8787/form');
+    this.formService = new ApiServices(globalSettings.formUrl);
 
     this.form.addEventListener('submit', (event) => this.handleFormSubmit(event));
     this.form.addEventListener('input', () => this.validateForm());
@@ -41,7 +42,7 @@ export class FormManager {
       console.log(formObject);
       try {
         const response = await this.formService.sendData(formObject);
-        console.log(response)
+        console.log(response);
         if (response.success) {
           window.location.href = response.redirectUrl;
           console.log('Form submitted successfully');

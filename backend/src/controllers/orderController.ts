@@ -27,7 +27,6 @@ async function createOrder(c) {
   });
 
   order.calculatePrices();
-
   await setSession(c, orderToken, order, 900);
 
   return c.json({

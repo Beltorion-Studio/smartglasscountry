@@ -6,7 +6,7 @@ kv_namespaces = [
     {binding = "DASHBOARD_SETTINGS", id = "1341b22f2b2c414a9a664b25e73c072c", preview_id = "1341b22f2b2c414a9a664b25e73c072c" },
     {binding = "SESSION_STORAGE", id = "73976bf5ffb947ae86618f57db0feab1", preview_id = "73976bf5ffb947ae86618f57db0feab1" }
 ]
-
+#compatibility_flags = [ "nodejs_compat" ]
 # [vars]
 # MY_VAR = "my-variable"
 

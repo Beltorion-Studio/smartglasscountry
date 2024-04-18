@@ -2,6 +2,7 @@ import { cloneNode } from '@finsweet/ts-utils';
 import { ApiServices } from './services/ApiServices';
 import { removeChat } from './utils/removeChat';
 import { ErrorMessageUI } from './components/ErrorMessageUI';
+import { globalSettings } from 'src/settings/globalSettings';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
@@ -19,15 +20,21 @@ const regularPrice = document.querySelector('#regularPrice') as HTMLDivElement;
 const totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
 const discount = document.querySelector('#discount') as HTMLDivElement;
 const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-//const orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
-const orderService = new ApiServices('http://127.0.0.1:8787/order');
+const measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
+const orderService = new ApiServices(globalSettings.orderUrl);
 const urlParams = getUrlParams();
 const errorMessageUI = new ErrorMessageUI();
 
 async function displayOrders() {
   const orderData = await fetchOrder();
   console.log(orderData);
-  //if the order data empty return
+
+  if (orderData.unitOfMeasurement === 'mm') {
+    measurementTitle.textContent = 'SQM';
+  } else {
+   measurementTitle.textContent = 'SQFT';
+  }
+
   if (!orderData || Object.keys(orderData).length === 0) {
     console.log('Session is expired, please make a new order.');
     return;

@@ -1,7 +1,7 @@
 import { Order } from '../models/Order';
-import { cloneNode } from '@finsweet/ts-utils';
 import { ErrorMessageUI } from './ErrorMessageUI';
 import { ApiServices } from 'src/services/ApiServices';
+import { globalSettings } from 'src/settings/globalSettings';
 interface PanelData {
   width: number;
   height: number;
@@ -31,9 +31,8 @@ export class CalculatorUI {
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
-   this.orderService = new ApiServices('http://127.0.0.1:8787/order');
-   // this.orderService = new ApiServices('https://backend.beltorion.workers.dev/order');
-    this.dashboardService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
+    this.orderService = new ApiServices(globalSettings.orderUrl);
+    this.dashboardService = new ApiServices(globalSettings.dasboardUrl);
     this.removeErrorFromInputs();
     this.bindUIEvents();
     this.fetchDashboardValues().then((data) => (this.dashboardData = data));
@@ -64,14 +63,11 @@ export class CalculatorUI {
       }
       const unitOfMeasurement = this.getUnitOfMeasurement();
       const productType = this.getProductType();
-      this.validateProductType(productType);
-      /*
-      if (unitOfMeasurement === 'mm') {
-        this.measurementTitle.textContent = 'SQM';
-      } else {
-        this.measurementTitle.textContent = 'SQFT';
+      const isProductTypeValid = this.validateProductType(productType);
+      if (!isProductTypeValid) {
+        return; 
       }
-      */
+    
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
       const responseData = await this.submitOrder(newOrder);
       if (responseData.redirectUrl && responseData.orderToken) {
@@ -79,7 +75,6 @@ export class CalculatorUI {
         sessionStorage.setItem('orderToken', responseData.orderToken);
         window.location.href = responseData.redirectUrl;
       }
-
     });
   }
 
@@ -124,7 +119,6 @@ export class CalculatorUI {
 
     return panelData;
   }
-
 
   getUnitOfMeasurement() {
     return this.unitOfMeasurementSelector.value;
