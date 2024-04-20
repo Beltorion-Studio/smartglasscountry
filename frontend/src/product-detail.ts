@@ -80,9 +80,9 @@ async function fetchOrder(): Promise<Record<string, string>> {
 }
 
 function updateOrderTable(orderData: any): void {
-  regularPrice.textContent = '$' + String(orderData.TotalRegularPrice.toFixed(2));
-  totalprice.textContent = '$' + String(orderData.TotalFinalPrice.toFixed(2));
-  discount.textContent = '$' + String(orderData.DiscountAmount.toFixed(2));
+  regularPrice.textContent = '$' + String(orderData.totalRegularPrice.toFixed(2));
+  totalprice.textContent = '$' + String(orderData.totalFinalPrice.toFixed(2));
+  discount.textContent = '$' + String(orderData.discountAmount.toFixed(2));
   discountValue.textContent = String(orderData.discount);
 }
 
@@ -108,7 +108,7 @@ function setButtons() {
   } else {
     depositBtn.disabled = true;
     errorMessageUI.show(
-      'Customers from outside of USA and Canada, please contact the merchant directly via email or phone'
+      'For project cost calculations specific to your country, please contact us directly at info@smartglasscountry.com'
     );
   }
 

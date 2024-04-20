@@ -7,5 +7,6 @@ export const globalSettings = {
     orderUrl: apiBaseUrl + 'order',
     loginUrl: apiBaseUrl + 'login',
     logoutUrl: apiBaseUrl + 'logout',
-    formUrl: apiBaseUrl + 'form',    
+    formUrl: apiBaseUrl + 'form', 
+    settingsUrl: apiBaseUrl + 'settings',   
 }

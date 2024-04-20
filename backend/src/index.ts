@@ -5,6 +5,7 @@ import { Bindings } from 'hono/types';
 import { dashboardRoutes } from './routes/dashboardRoutes';
 import { formRoutes } from './routes/formRoutes';
 import { orderRoutes } from './routes/orderRoutes';
+import { settingRoutes } from './routes/settingsRoutes';
 
 const app = new Hono<{ Bindings: Bindings }>();
 const corsOptions = {
@@ -23,5 +24,6 @@ app.get('/', (c) => {
 orderRoutes(app);
 dashboardRoutes(app);
 formRoutes(app);
+settingRoutes(app);
 
 export default app;

@@ -20,7 +20,7 @@ export class CalculatorUI {
   private measurementTitle: HTMLDivElement;
   private errorMessageUI: ErrorMessageUI;
   private orderService: ApiServices;
-  private dashboardService: ApiServices;
+  private settingsService: ApiServices;
   private dashboardData!: Record<string, string>;
   private productMaxWidth: string = '';
   private productMaxHeight: string = '';
@@ -32,7 +32,7 @@ export class CalculatorUI {
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
     this.orderService = new ApiServices(globalSettings.orderUrl);
-    this.dashboardService = new ApiServices(globalSettings.dasboardUrl);
+    this.settingsService = new ApiServices(globalSettings.settingsUrl);
     this.removeErrorFromInputs();
     this.bindUIEvents();
     this.fetchDashboardValues().then((data) => (this.dashboardData = data));
@@ -209,7 +209,7 @@ export class CalculatorUI {
   }
 
   async fetchDashboardValues(): Promise<Record<string, string>> {
-    const responseData = await this.dashboardService.fetchData();
+    const responseData = await this.settingsService.fetchData();
     console.log(responseData);
     return responseData;
   }

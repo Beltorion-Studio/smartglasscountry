@@ -13,6 +13,7 @@ async function createOrder(c) {
   const productPrice = getUnitPrice(dashboardData, productType);
   const orderToken = generateUniqueToken();
   const order = new Order(unitOfMeasurement, productType, discount);
+  console.log(order);
 
   products.forEach((p) => {
     const product = new Product(
@@ -26,11 +27,11 @@ async function createOrder(c) {
     order.addProduct(product);
   });
 
-  order.calculatePrices();
+  order.calculateReviewPrice();
   await setSession(c, orderToken, order, 900);
-
   return c.json({
     orderToken: orderToken,
+    // redirectUrl: 'https://smartglass.webflow.io/product-detail?country=true',
     redirectUrl: 'https://smartglass.webflow.io/contact-form',
   });
 }
