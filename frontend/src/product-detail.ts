@@ -7,7 +7,7 @@ import { globalSettings } from 'src/settings/globalSettings';
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded');
+    console.log('DOM content loaded2');
     removeChat();
     setButtons();
     displayOrders();
