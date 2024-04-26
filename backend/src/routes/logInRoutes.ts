@@ -1,8 +1,54 @@
 import { Hono } from 'hono';
-import { Bindings } from 'hono/types';
+import { decode, sign, verify } from 'hono/jwt';
 
-import { logIn } from '../controllers/logInController';
+//import { setCookie } from 'hono/cookie';
+import { CryptoService } from '../services/CryptoService';
 
-export const orderRoutes = (app: Hono<{ Bindings: Bindings }>) => {
-  app.post('/login', logIn);
-};
+const logIn = new Hono();
+//const JWT_SECRET = 'secret';
+const ADMIN_EMAIL = 'admin@admin.com';
+const ADMIN_PASSWORD = 'admin';
+
+const cryptoService = new CryptoService();
+
+let hashedAdminPassword: string;
+
+(async () => {
+  hashedAdminPassword = await cryptoService.hashPassword(ADMIN_PASSWORD);
+})();
+
+logIn.post('/', async (c) => {
+  try {
+    // Ensure hashedAdminPassword is ready
+    if (!hashedAdminPassword) {
+      return c.text('Server not ready', 503);
+    }
+    const requestBody = await c.req.json();
+    const { email, password } = requestBody;
+
+    if (!email || !password) {
+      return c.text('Email and password are required', 400);
+    }
+    const incomingHashedPassword = await cryptoService.hashPassword(password);
+
+    if (email === ADMIN_EMAIL && incomingHashedPassword === hashedAdminPassword) {
+      const payload = {
+        sub: email,
+        role: 'admin',
+        exp: Math.floor(Date.now() / 1000) + 60 * 50,
+      };
+      const secret = 'mySecretKey';
+      const token = await sign(payload, secret);
+      // setCookie(c, 'jwt', token, { maxAge: 86400, httpOnly: true });
+      console.log(token);
+      return c.json({ token });
+    }
+
+    return c.text('Invalid credentials', 401);
+  } catch (error) {
+    console.error('Login error:', error);
+
+    return c.text('Internal Server Error', 500);
+  }
+});
+export default logIn;

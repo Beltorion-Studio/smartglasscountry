@@ -1,18 +1,18 @@
 export class PricingService {
-  private quotedCurrency: string;
+  //private quotedCurrency: string;
+  //private discount: number;
+  // private unitPrice: number;
+  // private insurance: number;
+  //private tax: number;
+  // private shipping: number;
+  // private totalPrice: number;
   private productType: string;
   private crating: number;
-  private discount: number;
-  private unitPrice: number;
-  private insurance: number;
-  private tax: number;
-  private shipping: number;
-  private totalPrice: number;
   private static instance: PricingService;
 
   private constructor(productType: string) {
     this.productType = productType;
-    // initialize other properties here
+    this.crating = this.calculateCrating();
   }
 
   convertSqftToSqm(areaInSqft: number): number {

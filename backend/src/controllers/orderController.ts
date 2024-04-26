@@ -2,7 +2,7 @@ import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { dbOperations } from '../services/DbOperations';
 import { getSession, setSession } from '../services/session';
-import { getUnitPrice } from '../services/utils';
+import { getInsurancePercentage, getShippingCost, getUnitPrice } from '../services/utils';
 //import { HonoRequest } from 'hono';
 
 async function createOrder(c) {
@@ -11,9 +11,10 @@ async function createOrder(c) {
   const dashboardData = await dbOperations.getData(c.env.DASHBOARD_SETTINGS, 'dashboard');
   const { discount } = dashboardData;
   const productPrice = getUnitPrice(dashboardData, productType);
+  const insurancePercentage = getInsurancePercentage(dashboardData, productType);
+  const shippingCost = getShippingCost(dashboardData, productType);
   const orderToken = generateUniqueToken();
   const order = new Order(unitOfMeasurement, productType, discount);
-  console.log(order);
 
   products.forEach((p) => {
     const product = new Product(
@@ -22,12 +23,14 @@ async function createOrder(c) {
       p.quantity,
       unitOfMeasurement,
       productType,
-      productPrice
+      productPrice,
+      insurancePercentage,
+      shippingCost
     );
     order.addProduct(product);
   });
 
-  order.calculateReviewPrice();
+  order.calculateTotalFinalPrice();
   await setSession(c, orderToken, order, 900);
   return c.json({
     orderToken: orderToken,
@@ -37,7 +40,9 @@ async function createOrder(c) {
 }
 
 async function getOrder(c) {
+  console.log('Fetching order...');
   const orderToken = c.req.query('orderToken');
+  console.log({ orderToken });
 
   const order = await getSession(c, orderToken);
   if (!order) {

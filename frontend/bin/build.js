@@ -7,7 +7,7 @@ const BUILD_DIRECTORY = 'dist';
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Config entrypoint files
-const ENTRY_POINTS = ['src/index.ts','src/form.ts', 'src/calculator.ts', 'src/dashboard.ts', 'src/custormer-page.ts', 'src/product-detail.ts'];
+const ENTRY_POINTS = ['src/index.ts','src/form.ts', 'src/calculator.ts', 'src/dashboard.ts', 'src/custormer-page.ts', 'src/product-detail.ts', 'src/login.ts', 'src/buy-sample.ts'];
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
 const SERVE_PORT = 3000;

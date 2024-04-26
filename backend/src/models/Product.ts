@@ -5,9 +5,11 @@ export class Product {
   public productType: string;
   public squareFootage: number;
   public squarMeterage: number;
-  public squaredMeasurement: number;
+  public size: number;
   public totalPrice: number;
   public unitPrice: number;
+  public insurancePercentage: number;
+  public shippingCost: number;
   public unitOfMeasurement: string;
 
   constructor(
@@ -16,7 +18,9 @@ export class Product {
     quantity: number,
     unitOfMeasurement: string,
     productType: string,
-    unitPrice: number
+    unitPrice: number,
+    insurancePercentage: number,
+    shippingCost: number
   ) {
     this.productType = productType;
     this.unitPrice = unitPrice;
@@ -24,11 +28,13 @@ export class Product {
     this.height = height;
     this.quantity = quantity;
     this.unitOfMeasurement = unitOfMeasurement;
+    this.insurancePercentage = insurancePercentage;
+    this.shippingCost = shippingCost;
 
     if (this.unitOfMeasurement === 'inches') {
-      this.squaredMeasurement = this.getSquareFootage();
+      this.size = this.getSquareFootage();
     } else {
-      this.squaredMeasurement = this.getSquareMeterage();
+      this.size = this.getSquareMeterage();
     }
 
     if (
@@ -61,12 +67,16 @@ export class Product {
   }
 
   getTotalPrice(): number {
-    let totalPrice = this.squaredMeasurement * Number(this.quantity) * Number(this.unitPrice);
+    let totalPrice = this.size * Number(this.quantity) * Number(this.unitPrice);
 
     if (this.unitOfMeasurement === 'mm') {
       totalPrice = totalPrice * 10.7639;
     }
 
     return Number(totalPrice.toFixed(2));
+  }
+
+  getInsuranceCost(): number {
+    return (this.totalPrice * this.insurancePercentage) / 100;
   }
 }

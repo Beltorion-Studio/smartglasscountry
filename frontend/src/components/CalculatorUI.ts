@@ -73,6 +73,7 @@ export class CalculatorUI {
       if (responseData.redirectUrl && responseData.orderToken) {
         console.log(responseData);
         sessionStorage.setItem('orderToken', responseData.orderToken);
+        console.log(responseData)
         window.location.href = responseData.redirectUrl;
       }
     });

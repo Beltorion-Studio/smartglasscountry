@@ -14,8 +14,8 @@ export class DashboardManager {
     ) as HTMLInputElement[];
     this.setupSaveButtonListener();
     this.errorMessageUI = new ErrorMessageUI();
-    this.apiService = new ApiServices(globalSettings.dasboardUrl);
-    //this.apiService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
+    //this.apiService = new ApiServices(globalSettings.dasboardUrl);
+    this.apiService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
     this.initializeDashboardValues().catch(console.error);
   }
 

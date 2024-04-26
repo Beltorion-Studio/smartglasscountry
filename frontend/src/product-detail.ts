@@ -17,10 +17,15 @@ document.addEventListener('DOMContentLoaded', function () {
 const orderContainer = document.querySelector('#orderContainer') as HTMLDivElement;
 const orderRowsContainer = orderContainer.querySelector('#orderRowsContainer') as HTMLDivElement;
 const regularPrice = document.querySelector('#regularPrice') as HTMLDivElement;
+const shippingPrice = document.querySelector('#ShippingPrice') as HTMLDivElement;
+const cratingPrice = document.querySelector('#cratingPrice') as HTMLDivElement;
+const insurancePrice = document.querySelector('#insurancePrice') as HTMLDivElement;
+const subTotal = document.querySelector('#subTotalPrice') as HTMLDivElement;
 const totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
 const discount = document.querySelector('#discount') as HTMLDivElement;
 const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-const measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
+const measurementTitle = document.querySelector("[bo-elements='size']") as HTMLDivElement;
+const orderTitle = document.querySelector('.order-title') as HTMLDivElement;
 const orderService = new ApiServices(globalSettings.orderUrl);
 const urlParams = getUrlParams();
 const errorMessageUI = new ErrorMessageUI();
@@ -32,7 +37,7 @@ async function displayOrders() {
   if (orderData.unitOfMeasurement === 'mm') {
     measurementTitle.textContent = 'SQM';
   } else {
-   measurementTitle.textContent = 'SQFT';
+    measurementTitle.textContent = 'SQFT';
   }
 
   if (!orderData || Object.keys(orderData).length === 0) {
@@ -54,13 +59,39 @@ function addProductsToOrderForm(orderData: any): void {
   products.forEach((product: any) => {
     const newRow = cloneNode(orderRow);
     Object.keys(product).forEach((key) => {
+      formatProductName(product, key);
       const cell = newRow.querySelector(`[data-order="${key}"]`) as HTMLInputElement;
-      if (cell) {
-        cell.value = String(product[key]);
+      if (!cell) {
+        return;
+      }
+      if (key === 'productType') {
+        orderTitle.textContent = product[key];
+      } else if (key === 'quantity') {
+        cell.textContent = String(product[key]) + ' pcs';
+      } else if (key === 'height' || key === 'width') {
+        cell.textContent = String(product[key] + ' ' + orderData.unitOfMeasurement);
+      } else if (key === 'totalPrice') {
+        cell.textContent = String(product[key].toFixed(2));
+      } else if (key === 'size') {
+        cell.textContent = String(
+          product[key] + ' ' + (orderData.unitOfMeasurement === 'mm' ? 'SQM' : 'SQFT')
+        );
+      } else {
+        cell.textContent = String(product[key]);
       }
     });
     orderRowsContainer.appendChild(newRow);
   });
+}
+
+function formatProductName(product: any, key: string) {
+  if (product[key] === 'smartFilm') {
+    product[key] = 'Smart Film';
+  } else if (product[key] === 'smartGlass') {
+    product[key] = 'Smart Glass';
+  } else if (product[key] === 'igu') {
+    product[key] = 'IGU';
+  }
 }
 
 function getOrderToken(): string | null {
@@ -81,9 +112,13 @@ async function fetchOrder(): Promise<Record<string, string>> {
 
 function updateOrderTable(orderData: any): void {
   regularPrice.textContent = '$' + String(orderData.totalRegularPrice.toFixed(2));
-  totalprice.textContent = '$' + String(orderData.totalFinalPrice.toFixed(2));
+  shippingPrice.textContent = '$' + String(orderData.shippingCost.toFixed(2));
+  cratingPrice.textContent = '$' + String(orderData.cratingCost.toFixed(2));
+  insurancePrice.textContent = '$' + String(orderData.insuranceCost.toFixed(2));
+  subTotal.textContent = '$' + String(orderData.subTotal.toFixed(2));
   discount.textContent = '$' + String(orderData.discountAmount.toFixed(2));
   discountValue.textContent = String(orderData.discount);
+  totalprice.textContent = '$' + String(orderData.totalFinalPrice.toFixed(2));
 }
 
 function convertToInches(value: string): string {

@@ -14,15 +14,14 @@ export class Order {
   private insuranceCost: number = 0;
   private tax: number = 0;
   private shippingCost: number = 0;
-  private subtotal: number = 0;
-  private finalPrice: number = 0;
+  private subTotal: number = 0;
 
   constructor(unitOfMeasurement: string, productType: string, discount: number = 0) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.discount = discount;
     const pricingService = PricingService.getInstance(this.productType);
-    pricingService.setProductType(this.productType); // Assuming such a method exists
+    pricingService.setProductType(this.productType);
   }
 
   addProduct(product: Product): void {
@@ -36,6 +35,12 @@ export class Order {
   calculateTotalRegularPrice(): number {
     return this.products.reduce((sum, product) => sum + product.getTotalPrice(), 0);
   }
+  calculateInsurance(): number {
+    return this.products.reduce((sum, product) => sum + product.getInsuranceCost(), 0);
+  }
+  calculateShippingCost(): number {
+    return this.products.reduce((sum, product) => sum + product.shippingCost, 0);
+  }
   /*
   calculateDiscount(price): number {
     return price * this.discount * 0.01;
@@ -47,23 +52,24 @@ export class Order {
 
   calculateTotalFinalPrice(): void {
     const pricingService = PricingService.getInstance(this.productType);
-    this.subtotal = this.calculateTotalRegularPrice();
-    this.shippingCost = pricingService.calculateShippingCost();
-    this.insuranceCost = pricingService.calculateInsurance();
+    this.totalRegularPrice = this.calculateTotalRegularPrice();
+    this.shippingCost = this.calculateShippingCost();
+    this.insuranceCost = this.calculateInsurance();
     this.cratingCost = pricingService.calculateCrating();
-    this.finalPrice = this.subtotal + this.shippingCost + this.insuranceCost + this.cratingCost;
-    this.discountAmount = this.calculateDiscount(this.finalPrice);
-    this.totalFinalPrice = this.finalPrice - this.discountAmount;
+    this.subTotal =
+      this.shippingCost + this.insuranceCost + this.cratingCost + this.totalRegularPrice;
+    this.discountAmount = this.calculateDiscount(this.totalRegularPrice);
+    this.totalFinalPrice = this.subTotal - this.discountAmount;
 
     // return totalFinalPrice;
   }
-
+/*
   calculateReviewPrice(): void {
     this.totalRegularPrice = this.calculateTotalRegularPrice();
     this.discountAmount = this.calculateDiscount(this.totalRegularPrice);
     this.totalFinalPrice = this.totalRegularPrice - this.discountAmount;
   }
-
+*/
   // New method to get the list of products
   getProducts(): Product[] {
     return this.products;

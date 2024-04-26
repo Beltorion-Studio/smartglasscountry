@@ -1,50 +1,34 @@
 export class CryptoService {
-  private algorithm: AesCtrParams;
-  private key: CryptoKey;
+  // Define a static salt for simplicity; in a real-world scenario, you'd generate a unique salt per password.
+  private static salt = new TextEncoder().encode('a-unique-salt');
 
-  constructor(secretKey: string) {
-    this.algorithm = { name: 'AES-CTR', length: 256 };
-    this.key = this.importKey(secretKey);
-  }
+  async hashPassword(plaintextPassword: string): Promise<string> {
+    const passwordBuffer = new TextEncoder().encode(plaintextPassword);
 
-  private async importKey(secretKey: string): Promise<CryptoKey> {
-    const encodedKey = new TextEncoder().encode(secretKey);
-    return await crypto.subtle.importKey('raw', encodedKey, this.algorithm, false, [
-      'encrypt',
-      'decrypt',
+    // Import the password as a crypto key
+    const key = await crypto.subtle.importKey('raw', passwordBuffer, { name: 'PBKDF2' }, false, [
+      'deriveBits',
     ]);
-  }
 
-  async encrypt(text: string): Promise<{ iv: string; content: string }> {
-    const iv = crypto.getRandomValues(new Uint8Array(16));
-    const encodedText = new TextEncoder().encode(text);
-    const encryptedData = await crypto.subtle.encrypt(
-      { ...this.algorithm, counter: iv, length: 64 },
-      this.key,
-      encodedText
+    // Derive the hash using PBKDF2 with HMAC SHA-256 and the predefined salt
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: CryptoService.salt,
+        iterations: 100000, // The number of iterations should be as high as possible without causing too much delay.
+        hash: 'SHA-256',
+      },
+      key,
+      256 // The number of bits to derive; 256 bits = 32 bytes
     );
 
-    return {
-      iv: Array.from(iv)
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join(''),
-      content: Buffer.from(encryptedData).toString('hex'),
-    };
+    // Convert the derived bits to a hex string
+    const hashArray = Array.from(new Uint8Array(derivedBits));
+    const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+    return hashHex;
   }
 
-  async decrypt(hash: { iv: string; content: string }): Promise<string> {
-    const iv = new Uint8Array(hash.iv.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
-    const encryptedData = Buffer.from(hash.content, 'hex');
-    const decryptedData = await crypto.subtle.decrypt(
-      { ...this.algorithm, counter: iv, length: 64 },
-      this.key,
-      encryptedData
-    );
-
-    return new TextDecoder().decode(decryptedData);
-  }
-
-  maskApiKey(apiKey: string) {
+  maskApiKey(apiKey: string): string {
     return apiKey.slice(0, 4) + '*'.repeat(apiKey.length - 8) + apiKey.slice(-4);
   }
 }
