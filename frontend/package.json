@@ -1,6 +1,6 @@
 {
   "name": "@beltorion/smartglasscountry",
-  "version": "1.4.1",
+  "version": "1.4.5",
   "description": "Smartglasscountry custom codes by Beltrorion Studio",
   "homepage": "https://github.com/Beltorion-Studio/smartglasscountry/#readme",
   "license": "ISC",
@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@finsweet/ts-utils": "^0.40.0",
+    "axios": "^1.6.8",
     "gsap": "^3.12.5",
     "zod": "^3.22.4"
   },

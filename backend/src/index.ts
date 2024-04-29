@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Bindings } from 'hono/types';
 
+import { checkOut } from './routes/checkOutRoutes';
 import dashboard from './routes/dashboardRoutes';
 import { form } from './routes/formRoutes';
 import logIn from './routes/logInRoutes';
@@ -31,5 +32,6 @@ app.route('/form', form);
 app.route('/settings', settings);
 app.route('/login', logIn);
 app.route('/samples', sample);
+app.route('/checkout', checkOut);
 
 export default app;

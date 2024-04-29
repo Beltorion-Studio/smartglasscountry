@@ -6,9 +6,6 @@ import { authMiddleware } from '../middleware/jwtMiddleware';
 const sample = new Hono<{ Bindings: Bindings }>();
 
 sample.get('/', authMiddleware, async (c) => {
-  console.log('sample route');
-
-  // const token = getCookie(c, 'delicious_cookie');
   try {
     const sampleData = {
       items: [
@@ -28,7 +25,6 @@ sample.get('/', authMiddleware, async (c) => {
     if (!sampleData) {
       return c.json({ error: 'Not found' }, { status: 404 });
     }
-    // console.log(sampleData);
     return c.json(sampleData);
   } catch (error) {
     console.error(error);

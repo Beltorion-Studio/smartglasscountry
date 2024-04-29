@@ -23,7 +23,7 @@ function logIn() {
     const email = formData.get('email');
     const password = formData.get('Password');
     // Send login request to your backend
-    const response = await fetch('http://127.0.0.1:8787/login', {
+    const response = await fetch(globalSettings.loginUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ function logIn() {
       window.sessionStorage.setItem('jwt', data.token);
       // Redirect to the dashboard
       //window.location.href = '/smart-center/dashboard';
-      location.assign('/buy-samples');
+      location.assign('/smart-center/dashboard');
     } else {
       console.log('Login failed');
     }

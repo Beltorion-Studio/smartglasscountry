@@ -5,7 +5,12 @@ import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { dbOperations } from '../services/DbOperations';
 import { getSession, setSession } from '../services/session';
-import { getInsurancePercentage, getShippingCost, getUnitPrice } from '../services/utils';
+import {
+  getDiscountPeriod,
+  getInsurancePercentage,
+  getShippingCost,
+  getUnitPrice,
+} from '../services/utils';
 const order = new Hono<{ Bindings: Bindings }>();
 
 order.post('/', async (c) => {
@@ -20,7 +25,9 @@ order.post('/', async (c) => {
   const insurancePercentage = getInsurancePercentage(dashboardData, productType);
   const shippingCost = getShippingCost(dashboardData, productType);
   const orderToken = generateUniqueToken();
-  const order = new Order(unitOfMeasurement, productType, discount);
+  const discountPeriod = getDiscountPeriod(dashboardData, productType);
+
+  const order = new Order(unitOfMeasurement, productType, discount, discountPeriod);
 
   products.forEach((p) => {
     const product = new Product(

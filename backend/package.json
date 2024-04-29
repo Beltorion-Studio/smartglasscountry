@@ -9,6 +9,7 @@
     "jose": "^5.2.4",
     "jsonwebtoken": "^9.0.2",
     "sanitize-html": "^2.13.0",
+    "stripe": "^15.4.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

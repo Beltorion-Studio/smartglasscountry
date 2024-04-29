@@ -44,12 +44,26 @@ function getShippingCost(itemObject: ItemObject, itemName: string): number {
   const shippingKey: string = `${itemName.toLowerCase()}shipping`;
 
   const shippingString: string = lowercaseItemObject[shippingKey];
-  console.log({ shippingKey, shippingString });
 
   if (!shippingString) {
     return 0;
   }
   return parseFloat(shippingString);
 }
+function getDiscountPeriod(itemObject: ItemObject, itemName: string): number {
+  const lowercaseItemObject: ItemObject = Object.keys(itemObject).reduce((acc, key) => {
+    acc[key.toLowerCase()] = itemObject[key];
+    return acc;
+  }, {} as ItemObject);
 
-export { getInsurancePercentage, getShippingCost, getUnitPrice };
+  const discountPeriodKey: string = `${itemName.toLowerCase()}discountperiod`;
+
+  const discountPeriodString: string = lowercaseItemObject[discountPeriodKey];
+
+  if (!discountPeriodString) {
+    return 0;
+  }
+  return parseFloat(discountPeriodString);
+}
+
+export { getDiscountPeriod, getInsurancePercentage, getShippingCost, getUnitPrice };

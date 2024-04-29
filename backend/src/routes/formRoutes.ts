@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { getCookie } from 'hono/cookie';
 import { Bindings } from 'hono/types';
 import { ZodError } from 'zod';
 
@@ -9,12 +8,9 @@ const form = new Hono<{ Bindings: Bindings }>();
 
 form.post('/', async (c) => {
   try {
-    const allCookies = getCookie(c);
-    console.log(allCookies);
     const form = await c.req.json();
     const sanitizedForm = sanitizeData(form);
 
-    console.log(form.location);
     const { error } = validateFormData(sanitizedForm);
     if (error) {
       return c.json({ errors: error.issues }, { status: 400 });
@@ -26,6 +22,9 @@ form.post('/', async (c) => {
     } else {
       redirectUrl = 'https://smartglass.webflow.io/product-detail?country=false';
     }
+    console.log(sanitizedForm);
+    // send form data to salesforce api
+    //await sendFormToSalesforce(sanitizedForm);
 
     return c.json({
       success: true,
@@ -45,12 +44,36 @@ function validateFormData(data: { [key: string]: string }): {
   const parsedData = formSchema.safeParse(data);
 
   if (!parsedData.success) {
-    // If the parsing failed, return the error object
     return { data: null, error: parsedData.error };
   }
 
-  // If the parsing was successful, return the parsed data with no error
   return { data: parsedData.data, error: null };
 }
+/*
+async function sendFormToSalesforce(formData: { [key: string]: string }) {
+  // Call salesforce API to send form data
+  const response = await salesforce.post('/forms', formData);
+
+  if(response.status !== 200) {
+    throw new Error('Error sending form data to salesforce');
+  }
+}
+*/
+/*
+async function salesforce({ env }: { env: Bindings['env'] }) {
+  const client = new Client({
+    instanceUrl: env.SALESFORCE_INSTANCE_URL,
+    clientId: env.SALESFORCE_CLIENT_
+    ID,
+    clientSecret: env.SALESFORCE_CLIENT_SECRET,
+    redirectUri: env.SALESFORCE_REDIRECT_URI,
+  });
+  return {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+}
+*/
 
 export { form };

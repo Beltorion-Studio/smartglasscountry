@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { decode, sign, verify } from 'hono/jwt';
+import { sign } from 'hono/jwt';
 
 //import { setCookie } from 'hono/cookie';
 import { CryptoService } from '../services/CryptoService';
@@ -35,12 +35,11 @@ logIn.post('/', async (c) => {
       const payload = {
         sub: email,
         role: 'admin',
-        exp: Math.floor(Date.now() / 1000) + 60 * 50,
+        exp: Math.floor(Date.now() / 1000) + 60 * 50, // expires in 50 minutes
       };
       const secret = 'mySecretKey';
       const token = await sign(payload, secret);
       // setCookie(c, 'jwt', token, { maxAge: 86400, httpOnly: true });
-      console.log(token);
       return c.json({ token });
     }
 

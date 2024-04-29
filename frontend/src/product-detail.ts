@@ -3,6 +3,7 @@ import { ApiServices } from './services/ApiServices';
 import { removeChat } from './utils/removeChat';
 import { ErrorMessageUI } from './components/ErrorMessageUI';
 import { globalSettings } from 'src/settings/globalSettings';
+import axios from 'axios';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
@@ -26,6 +27,7 @@ const discount = document.querySelector('#discount') as HTMLDivElement;
 const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
 const measurementTitle = document.querySelector("[bo-elements='size']") as HTMLDivElement;
 const orderTitle = document.querySelector('.order-title') as HTMLDivElement;
+const discountPeriod = document.querySelector("[data-order='discountPeriod']") as HTMLDivElement;
 const orderService = new ApiServices(globalSettings.orderUrl);
 const urlParams = getUrlParams();
 const errorMessageUI = new ErrorMessageUI();
@@ -65,6 +67,7 @@ function addProductsToOrderForm(orderData: any): void {
         return;
       }
       if (key === 'productType') {
+        cell.textContent = String(product[key]);
         orderTitle.textContent = product[key];
       } else if (key === 'quantity') {
         cell.textContent = String(product[key]) + ' pcs';
@@ -119,6 +122,7 @@ function updateOrderTable(orderData: any): void {
   discount.textContent = '$' + String(orderData.discountAmount.toFixed(2));
   discountValue.textContent = String(orderData.discount);
   totalprice.textContent = '$' + String(orderData.totalFinalPrice.toFixed(2));
+  discountPeriod.textContent = String(orderData.discountPeriod);
 }
 
 function convertToInches(value: string): string {
@@ -147,7 +151,7 @@ function setButtons() {
     );
   }
 
-  buyBtn.addEventListener('click', () => redirectToSamples());
+  buyBtn.addEventListener('click', () => createOrder());
 
   function redirectToCheckout() {
     window.location.href = '/calculator';
@@ -155,5 +159,18 @@ function setButtons() {
 
   function redirectToSamples() {
     window.location.href = 'samples.html';
+  }
+
+  function createOrder() {
+    axios
+      .get('http://127.0.0.1:8787/checkout')
+      .then((response) => {
+        // Handle the response data here
+        console.log('Response:', response.data);
+      })
+      .catch((error) => {
+        // Handle any errors that occur during the request
+        console.error('Error:', error);
+      });
   }
 }

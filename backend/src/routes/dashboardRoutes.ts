@@ -1,15 +1,15 @@
 import { Hono } from 'hono';
 import { Bindings } from 'hono/types';
 
-//import { authenticateUser } from '../middleware/jwtMiddleware';
+import { authMiddleware } from '../middleware/jwtMiddleware';
 import { CryptoService } from '../services/CryptoService';
 import { dbOperations } from '../services/DbOperations';
-const secretKey = 'your-secret-key-for-encryption';
-const cryptoService = new CryptoService(secretKey);
+//const secretKey = 'your-secret-key-for-encryption';
+const cryptoService = new CryptoService();
 
 const dashboard = new Hono<{ Bindings: Bindings }>();
 
-dashboard.get('/', async (c) => {
+dashboard.get('/', authMiddleware, async (c) => {
   try {
     const dashboardData = await dbOperations.getData(
       c.env.DASHBOARD_SETTINGS as KVNamespace,

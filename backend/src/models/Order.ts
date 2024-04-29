@@ -15,11 +15,18 @@ export class Order {
   private tax: number = 0;
   private shippingCost: number = 0;
   private subTotal: number = 0;
+  private discountPeriod: number;
 
-  constructor(unitOfMeasurement: string, productType: string, discount: number = 0) {
+  constructor(
+    unitOfMeasurement: string,
+    productType: string,
+    discount: number = 0,
+    discountPeriod: number
+  ) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.discount = discount;
+    this.discountPeriod = discountPeriod;
     const pricingService = PricingService.getInstance(this.productType);
     pricingService.setProductType(this.productType);
   }
@@ -63,7 +70,7 @@ export class Order {
 
     // return totalFinalPrice;
   }
-/*
+  /*
   calculateReviewPrice(): void {
     this.totalRegularPrice = this.calculateTotalRegularPrice();
     this.discountAmount = this.calculateDiscount(this.totalRegularPrice);
