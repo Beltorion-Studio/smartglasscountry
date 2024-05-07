@@ -5,7 +5,6 @@ const mainContentElement = document.querySelector("[bo-elements='page-wrapper']"
 
 document.addEventListener('DOMContentLoaded', async function () {
   const token: string = window.sessionStorage.getItem('jwt') || '';
-  console.log(token);
   if (token) {
     const isExpired = await checkTokenExpiration(token);
     if (isExpired) {

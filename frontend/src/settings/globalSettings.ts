@@ -1,5 +1,5 @@
-const apiBaseUrl = 'https://backend.beltorion.workers.dev/';
-//const apiBaseUrl = 'http://127.0.0.1:8787/';
+//const apiBaseUrl = 'https://backend.beltorion.workers.dev/';
+const apiBaseUrl = 'http://127.0.0.1:8787/';
 
 
 export const globalSettings = {

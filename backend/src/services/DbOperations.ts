@@ -12,7 +12,7 @@ interface KVNamespace {
 const putData = async (
   kv: KVNamespace,
   key: string,
-  value: any,
+  value: string,
   secondsFromNow?: number
 ): Promise<void> => {
   const stringValue = JSON.stringify(value);

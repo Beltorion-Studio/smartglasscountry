@@ -24,12 +24,14 @@ export class CalculatorUI {
   private dashboardData!: Record<string, string>;
   private productMaxWidth: string = '';
   private productMaxHeight: string = '';
+  private imageContainter: HTMLDivElement;
 
   constructor() {
     this.calculateBtn = document.querySelector("[bo-elements='calculate']") as HTMLElement;
     this.unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
     this.productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
     this.measurementTitle = document.querySelector('#measurementTitle') as HTMLDivElement;
+    this.imageContainter = document.querySelector('.panel-img-container') as HTMLDivElement;
     this.errorMessageUI = new ErrorMessageUI();
     this.orderService = new ApiServices(globalSettings.orderUrl);
     this.settingsService = new ApiServices(globalSettings.settingsUrl);
@@ -37,7 +39,7 @@ export class CalculatorUI {
     this.bindUIEvents();
     this.fetchDashboardValues().then((data) => (this.dashboardData = data));
     this.addEventListenerToProductTypeSelector();
-    this.addEventListenerToMeasurementSelector();
+    //this.addEventListenerToMeasurementSelector();
   }
 
   private removeErrorFromInputs() {
@@ -65,15 +67,15 @@ export class CalculatorUI {
       const productType = this.getProductType();
       const isProductTypeValid = this.validateProductType(productType);
       if (!isProductTypeValid) {
-        return; 
+        return;
       }
-    
+      console.log(panelsData);
       const newOrder = new Order(panelsData, unitOfMeasurement, productType);
       const responseData = await this.submitOrder(newOrder);
       if (responseData.redirectUrl && responseData.orderToken) {
         console.log(responseData);
         sessionStorage.setItem('orderToken', responseData.orderToken);
-        console.log(responseData)
+        console.log(responseData);
         window.location.href = responseData.redirectUrl;
       }
     });
@@ -188,13 +190,32 @@ export class CalculatorUI {
     this.setMaxWidth(productType, unitOfMeasurement);
   }
 
+  changeProductImg() {
+    const productType = this.getProductType();
+    if (productType === 'productType') {
+      //TODO: add a default image
+      return;
+    }
+    console.log(productType);
+    const images = this.imageContainter.querySelectorAll('.calculator-img-w');
+    images.forEach((image) => {
+      image.classList.remove('selected-image');
+    });
+    const image = this.imageContainter.querySelector(
+      `[bo-elements='${productType}']`
+    ) as HTMLDivElement;
+    image.classList.add('selected-image');
+  }
+
   addEventListenerToProductTypeSelector() {
     this.productTypeSelector.addEventListener('change', () => {
-      this.setMaxWidthAndHeight();
+      this.changeProductImg();
     });
   }
+
   addEventListenerToMeasurementSelector() {
     this.unitOfMeasurementSelector.addEventListener('change', () => {
+      console.log('unit of measurement changed');
       this.setMaxWidthAndHeight();
     });
   }

@@ -15,7 +15,6 @@ dashboard.get('/', authMiddleware, async (c) => {
       c.env.DASHBOARD_SETTINGS as KVNamespace,
       'dashboard'
     );
-    console.log(dashboardData);
 
     if (!dashboardData) {
       return c.json({ error: 'Not found' }, { status: 404 });
@@ -42,11 +41,15 @@ dashboard.post('/', async (c) => {
   await dbOperations.putData(c.env.DASHBOARD_SETTINGS as KVNamespace, 'dashboard', dashboardData);
   const productSettings: { [key: string]: string } = {};
   for (const [key, value] of Object.entries(dashboardData)) {
-    if (key.endsWith('Height') || key.endsWith('Width')) {
+    if (key.endsWith('MinOrder')) {
       productSettings[key] = value as string;
     }
+    await dbOperations.putData(
+      c.env.PRODUCT_SETTINGS as KVNamespace,
+      'productSettings',
+      productSettings
+    );
   }
-
   if (dashboardData.apiKey) {
     dashboardData.apiKey = cryptoService.maskApiKey(dashboardData.apiKey);
   }

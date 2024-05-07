@@ -1,6 +1,6 @@
 import { ApiServices } from 'src/services/ApiServices';
 import { ErrorMessageUI } from './ErrorMessageUI';
-import {globalSettings} from 'src/settings/globalSettings';
+import { globalSettings } from 'src/settings/globalSettings';
 
 export class DashboardManager {
   private dashboardValues: Record<string, string> = {};
@@ -13,9 +13,11 @@ export class DashboardManager {
       document.querySelectorAll('[data-dashboard]')
     ) as HTMLInputElement[];
     this.setupSaveButtonListener();
+    this.setupLogOutButtonListener();
     this.errorMessageUI = new ErrorMessageUI();
     //this.apiService = new ApiServices(globalSettings.dasboardUrl);
     this.apiService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
+   // this.apiService = new ApiServices('http://127.0.0.1:8787/dashboard');
     this.initializeDashboardValues().catch(console.error);
   }
 
@@ -30,8 +32,40 @@ export class DashboardManager {
   }
 
   async fetchDashboardValues(): Promise<Record<string, string>> {
-    const responseData = await this.apiService.fetchData();
-    return responseData;
+    const token: string = window.sessionStorage.getItem('jwt') || '';
+
+    if (!token) {
+      this.redirectToLogin();
+      return Promise.resolve({});
+    }
+
+    try {
+      const response = await fetch('https://backend.beltorion.workers.dev/dashboard', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        sessionStorage.removeItem('jwt');
+        this.redirectToLogin();
+        return Promise.resolve({});
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData: Record<string, string> = await response.json();
+      return responseData;
+      // Handle your response data here
+    } catch (error) {
+      console.error('Error fetching dasboard data:', error);
+      return Promise.reject(error);
+    }
+    //const responseData = await this.apiService.fetchData();
   }
 
   setDashboardValues(responseData: Record<string, string>): void {
@@ -79,5 +113,19 @@ export class DashboardManager {
   ): Promise<Record<string, string>> {
     const response = await this.apiService.sendData(dashboardData);
     return response;
+  }
+
+  setupLogOutButtonListener(): void {
+    const logOutBtn = document.querySelector("[bo-elements='logOutBtn']") as HTMLButtonElement;
+    logOutBtn.addEventListener('click', () => this.logOUt());
+  }
+
+  private logOUt() {
+    sessionStorage.removeItem('jwt');
+    location.assign('/smart-center/log-in');
+  }
+
+  private redirectToLogin() {
+    location.assign('/smart-center/log-in');
   }
 }

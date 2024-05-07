@@ -3,20 +3,25 @@ import { ApiServices } from './services/ApiServices';
 import { removeChat } from './utils/removeChat';
 import { ErrorMessageUI } from './components/ErrorMessageUI';
 import { globalSettings } from 'src/settings/globalSettings';
+import type { OrderData } from './settings/types';
 import axios from 'axios';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded2');
+    console.log('DOM content loaded');
     removeChat();
     setButtons();
     displayOrders();
   });
 });
 
-const orderContainer = document.querySelector('#orderContainer') as HTMLDivElement;
-const orderRowsContainer = orderContainer.querySelector('#orderRowsContainer') as HTMLDivElement;
+const orderContainers = [
+  ...document.querySelectorAll("[bo-elements='orderContainer']"),
+] as HTMLDivElement[];
+const orderRowsContainers = orderContainers.map(
+  (container) => container.querySelector("[bo-elements='orderRowsContainer']") as HTMLDivElement
+) as HTMLDivElement[];
 const regularPrice = document.querySelector('#regularPrice') as HTMLDivElement;
 const shippingPrice = document.querySelector('#ShippingPrice') as HTMLDivElement;
 const cratingPrice = document.querySelector('#cratingPrice') as HTMLDivElement;
@@ -25,8 +30,6 @@ const subTotal = document.querySelector('#subTotalPrice') as HTMLDivElement;
 const totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
 const discount = document.querySelector('#discount') as HTMLDivElement;
 const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-const measurementTitle = document.querySelector("[bo-elements='size']") as HTMLDivElement;
-const orderTitle = document.querySelector('.order-title') as HTMLDivElement;
 const discountPeriod = document.querySelector("[data-order='discountPeriod']") as HTMLDivElement;
 const orderService = new ApiServices(globalSettings.orderUrl);
 const urlParams = getUrlParams();
@@ -35,12 +38,12 @@ const errorMessageUI = new ErrorMessageUI();
 async function displayOrders() {
   const orderData = await fetchOrder();
   console.log(orderData);
-
+  /* 
   if (orderData.unitOfMeasurement === 'mm') {
     measurementTitle.textContent = 'SQM';
   } else {
     measurementTitle.textContent = 'SQFT';
-  }
+  } */
 
   if (!orderData || Object.keys(orderData).length === 0) {
     console.log('Session is expired, please make a new order.');
@@ -50,41 +53,70 @@ async function displayOrders() {
   updateOrderTable(orderData);
 }
 
-function addProductsToOrderForm(orderData: any): void {
-  const orderRow = orderRowsContainer.querySelector("[bo-elements='order-row']") as HTMLDivElement;
-  orderRow.querySelectorAll('div[data-order]').forEach((div) => {
-    div.textContent = '';
+function clearOrderRows(orderRows: HTMLDivElement[]) {
+  orderRows.forEach((orderRow) => {
+    orderRow.querySelectorAll('div[data-order]').forEach((div) => {
+      div.textContent = '';
+    });
   });
-  orderRowsContainer.innerHTML = '';
+}
 
+function clearOrderRowsContainers(orderRowsContainers: HTMLDivElement[]) {
+  orderRowsContainers.forEach((orderRow) => {
+    orderRow.innerHTML = '';
+  });
+}
+
+function setCellContent(
+  cell: HTMLDivElement | HTMLInputElement,
+  key: string,
+  product: any,
+  orderData: any
+) {
+  if (key === 'productType') {
+    cell.textContent = String(product[key]);
+  } else if (key === 'quantity') {
+    cell.textContent = String(product[key]) + ' pcs';
+  } else if (key === 'height' || key === 'width') {
+    cell.textContent = String(product[key] + ' ' + orderData.unitOfMeasurement);
+  } else if (key === 'totalPrice') {
+    cell.textContent = String(product[key].toFixed(2));
+  } else if (key === 'size') {
+    cell.textContent = String(
+      product[key] + ' ' + (orderData.unitOfMeasurement === 'mm' ? 'SQM' : 'SQFT')
+    );
+  } else {
+    cell.textContent = String(product[key]);
+  }
+}
+
+function createAndAppendNewRows(orderRows: HTMLDivElement[], orderData: any) {
   const products = orderData.products;
   products.forEach((product: any) => {
-    const newRow = cloneNode(orderRow);
-    Object.keys(product).forEach((key) => {
-      formatProductName(product, key);
-      const cell = newRow.querySelector(`[data-order="${key}"]`) as HTMLInputElement;
-      if (!cell) {
-        return;
-      }
-      if (key === 'productType') {
-        cell.textContent = String(product[key]);
-        orderTitle.textContent = product[key];
-      } else if (key === 'quantity') {
-        cell.textContent = String(product[key]) + ' pcs';
-      } else if (key === 'height' || key === 'width') {
-        cell.textContent = String(product[key] + ' ' + orderData.unitOfMeasurement);
-      } else if (key === 'totalPrice') {
-        cell.textContent = String(product[key].toFixed(2));
-      } else if (key === 'size') {
-        cell.textContent = String(
-          product[key] + ' ' + (orderData.unitOfMeasurement === 'mm' ? 'SQM' : 'SQFT')
-        );
-      } else {
-        cell.textContent = String(product[key]);
-      }
+    orderRows.forEach((orderRow, index: number) => {
+      const newRow = cloneNode(orderRow);
+      Object.keys(product).forEach((key) => {
+        formatProductName(product, key);
+        const cell = newRow.querySelector(`[data-order="${key}"]`) as
+          | HTMLDivElement
+          | HTMLInputElement;
+        if (cell) {
+          setCellContent(cell, key, product, orderData);
+        }
+      });
+      orderRowsContainers[index].appendChild(newRow);
     });
-    orderRowsContainer.appendChild(newRow);
   });
+}
+
+function addProductsToOrderForm(orderData: any): void {
+  const orderRows = Array.from(orderContainers, (container) => {
+    return container.querySelector("[bo-elements='order-row']");
+  }) as HTMLDivElement[];
+
+  clearOrderRows(orderRows);
+  clearOrderRowsContainers(orderRowsContainers);
+  createAndAppendNewRows(orderRows, orderData);
 }
 
 function formatProductName(product: any, key: string) {
@@ -113,18 +145,48 @@ async function fetchOrder(): Promise<Record<string, string>> {
   return responseData;
 }
 
-function updateOrderTable(orderData: any): void {
-  regularPrice.textContent = '$' + String(orderData.totalRegularPrice.toFixed(2));
-  shippingPrice.textContent = '$' + String(orderData.shippingCost.toFixed(2));
-  cratingPrice.textContent = '$' + String(orderData.cratingCost.toFixed(2));
-  insurancePrice.textContent = '$' + String(orderData.insuranceCost.toFixed(2));
-  subTotal.textContent = '$' + String(orderData.subTotal.toFixed(2));
-  discount.textContent = '$' + String(orderData.discountAmount.toFixed(2));
-  discountValue.textContent = String(orderData.discount);
-  totalprice.textContent = '$' + String(orderData.totalFinalPrice.toFixed(2));
-  discountPeriod.textContent = String(orderData.discountPeriod);
-}
+function updateOrderTable(orderData: OrderData): void {
+  const orderTablePrices = document.querySelectorAll(
+    '[data-order-details]'
+  ) as NodeListOf<HTMLDivElement>;
 
+  function updateElementText(element: HTMLDivElement, value: any, key: string): void {
+    if (typeof value === 'number') {
+      updateElementWithNumber(element, value, key);
+    } else if (typeof value === 'string') {
+      updateElementWithString(element, value, key);
+    }
+  }
+
+  function updateElementWithNumber(element: HTMLDivElement, value: number, key: string): void {
+    if (key === 'discountAmount') {
+      element.textContent = `-$${Math.abs(value).toFixed(2)}`;
+    } else if (key !== 'discountPeriod') {
+      element.textContent = `$${value.toFixed(2)}`;
+    }
+  }
+
+  function updateElementWithString(element: HTMLDivElement, value: string, key: string): void {
+    if (key === 'productType') {
+      const productTypes = {
+        smartFilm: 'Smart Film',
+        smartGlass: 'Smart Glass',
+        igu: 'IGU',
+      };
+      element.textContent = productTypes[value] || '';
+    } else if (key === 'discount') {
+      element.textContent = value;
+    }
+  }
+
+  orderTablePrices.forEach((element) => {
+    const detailKey = element.getAttribute('data-order-details');
+    if (detailKey && orderData.hasOwnProperty(detailKey)) {
+      const value = orderData[detailKey];
+      updateElementText(element, value, detailKey);
+    }
+  });
+}
 function convertToInches(value: string): string {
   return (parseFloat(value) / 25.4).toFixed(2);
 }
@@ -155,10 +217,6 @@ function setButtons() {
 
   function redirectToCheckout() {
     window.location.href = '/calculator';
-  }
-
-  function redirectToSamples() {
-    window.location.href = 'samples.html';
   }
 
   function createOrder() {

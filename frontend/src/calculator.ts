@@ -5,7 +5,7 @@ import {removeChat} from './utils/removeChat';
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded11');
+    console.log('DOM content loaded');
     duplicatePanel();
     removeChat();
     new CalculatorUI();

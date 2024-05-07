@@ -11,7 +11,6 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     return c.json({
       success: false,
       status: 401,
-      redirectUrl: 'https://smartglass.webflow.io/log-in',
     });
   }
   try {

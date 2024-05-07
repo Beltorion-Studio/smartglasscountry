@@ -11,9 +11,9 @@ settings.get('/', async (c) => {
       c.env.PRODUCT_SETTINGS as KVNamespace,
       'productSettings'
     );
-
+    console.log(settingsData);
     if (!settingsData) {
-      return c.json({ error: 'Not found' }, { status: 404 });
+      return c.json({ error: 'Settings data not found' }, { status: 404 });
     }
 
     return c.json(settingsData);
