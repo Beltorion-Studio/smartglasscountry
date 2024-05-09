@@ -1,9 +1,10 @@
 import { cloneNode } from '@finsweet/ts-utils';
 import { ApiServices } from './services/ApiServices';
 import { removeChat } from './utils/removeChat';
+import { getOrderToken, getUrlParams } from './utils/utilities';
 import { ErrorMessageUI } from './components/ErrorMessageUI';
 import { globalSettings } from 'src/settings/globalSettings';
-import type { OrderData } from './settings/types';
+import type { OrderData, UrlParams } from './settings/types';
 import axios from 'axios';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -11,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.Webflow.push(() => {
     console.log('DOM content loaded');
     removeChat();
-    setButtons();
     displayOrders();
   });
 });
@@ -22,21 +22,14 @@ const orderContainers = [
 const orderRowsContainers = orderContainers.map(
   (container) => container.querySelector("[bo-elements='orderRowsContainer']") as HTMLDivElement
 ) as HTMLDivElement[];
-const regularPrice = document.querySelector('#regularPrice') as HTMLDivElement;
-const shippingPrice = document.querySelector('#ShippingPrice') as HTMLDivElement;
-const cratingPrice = document.querySelector('#cratingPrice') as HTMLDivElement;
-const insurancePrice = document.querySelector('#insurancePrice') as HTMLDivElement;
-const subTotal = document.querySelector('#subTotalPrice') as HTMLDivElement;
-const totalprice = document.querySelector('#totalPrice') as HTMLDivElement;
-const discount = document.querySelector('#discount') as HTMLDivElement;
-const discountValue = document.querySelector("[bo-elements='discount-value']") as HTMLElement;
-const discountPeriod = document.querySelector("[data-order='discountPeriod']") as HTMLDivElement;
 const orderService = new ApiServices(globalSettings.orderUrl);
 const urlParams = getUrlParams();
+console.log(urlParams);
 const errorMessageUI = new ErrorMessageUI();
 
 async function displayOrders() {
   const orderData = await fetchOrder();
+
   console.log(orderData);
   /* 
   if (orderData.unitOfMeasurement === 'mm') {
@@ -49,8 +42,14 @@ async function displayOrders() {
     console.log('Session is expired, please make a new order.');
     return;
   }
-  addProductsToOrderForm(orderData);
-  updateOrderTable(orderData);
+  const confirmedOrderData = orderData as OrderData;
+  const isCountryUsaOrCanada = checkCountry(urlParams);
+  console.log(isCountryUsaOrCanada);
+
+  const isMinorder = comperOrderWithMinOrder(confirmedOrderData);
+  setButtons(isCountryUsaOrCanada, isMinorder);
+  addProductsToOrderForm(confirmedOrderData);
+  updateOrderTable(confirmedOrderData);
 }
 
 function clearOrderRows(orderRows: HTMLDivElement[]) {
@@ -129,11 +128,7 @@ function formatProductName(product: any, key: string) {
   }
 }
 
-function getOrderToken(): string | null {
-  return sessionStorage.getItem('orderToken');
-}
-
-async function fetchOrder(): Promise<Record<string, string>> {
+async function fetchOrder(): Promise<OrderData | {}> {
   const orderToken = getOrderToken();
   if (!orderToken) {
     return {};
@@ -141,8 +136,16 @@ async function fetchOrder(): Promise<Record<string, string>> {
   const params = {
     orderToken: orderToken,
   };
-  const responseData = await orderService.fetchDataWithParams(params);
-  return responseData;
+  try {
+    const responseData: OrderData | null = await orderService.fetchDataWithParams(params);
+    if (responseData) {
+      return responseData;
+    }
+    return {};
+  } catch (error) {
+    console.error('Error fetching order data:', error);
+    return {};
+  }
 }
 
 function updateOrderTable(orderData: OrderData): void {
@@ -191,20 +194,43 @@ function convertToInches(value: string): string {
   return (parseFloat(value) / 25.4).toFixed(2);
 }
 
-function getUrlParams(): Record<string, string> {
-  const urlParams = new URLSearchParams(window.location.search);
-  const params: Record<string, string> = {};
-  urlParams.forEach((value, key) => {
-    params[key] = value;
-  });
-  return params;
+function checkCountry(urlParams: UrlParams): boolean {
+  console.log(urlParams.country);
+
+  if (urlParams.country === 'true') {
+    return true;
+  } else {
+    return false;
+  }
+}
+function comperOrderWithMinOrder(orderData: OrderData): boolean {
+  const minOrderAmount = orderData.minOrderQuantity;
+  if (orderData.totalFinalPrice < minOrderAmount) {
+    errorMessageUI.show(
+      `Order total must be at least $${minOrderAmount}. Please ad more products to your order.`
+    );
+    return false;
+  }
+  return true;
 }
 
-function setButtons() {
+function setButtons(isCountryUsaOrCanada: boolean, isMinorder: boolean) {
   const depositBtn = document.querySelector("[bo-elements='depositBtn']") as HTMLButtonElement;
   const buyBtn = document.querySelector("[bo-elements='buyBtn']") as HTMLButtonElement;
-  console.log(urlParams.country);
-  if (urlParams.country === 'true') {
+  const modifyOrderBtn = document.querySelector("[bo-elements='modifyBtn']") as HTMLButtonElement;
+  modifyOrderBtn.addEventListener('click', () => redirectToCalculator(isCountryUsaOrCanada));
+
+  if (!isMinorder) {
+    // modifyOrderBtn.style.display = 'block';
+    depositBtn.disabled = true;
+    buyBtn.disabled = true;
+  } else {
+    //  modifyOrderBtn.style.display = 'none';
+    depositBtn.disabled = false;
+    buyBtn.disabled = false;
+  }
+
+  if (isCountryUsaOrCanada) {
     depositBtn.addEventListener('click', () => redirectToCheckout());
   } else {
     depositBtn.disabled = true;
@@ -216,7 +242,16 @@ function setButtons() {
   buyBtn.addEventListener('click', () => createOrder());
 
   function redirectToCheckout() {
-    window.location.href = '/calculator';
+    window.location.href = '#';
+  }
+
+  function redirectToCalculator(isCountryUsaOrCanada: boolean) {
+    console.log(isCountryUsaOrCanada);
+    if (isCountryUsaOrCanada) {
+      window.location.href = '/calculator?country=true';
+    } else {
+      window.location.href = '/calculator?country=false';
+    }
   }
 
   function createOrder() {

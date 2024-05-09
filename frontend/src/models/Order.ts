@@ -10,11 +10,13 @@ export class Order {
   private products: Product[] = [];
   private unitOfMeasurement: string;
   private productType: string;
+  private isNewOrder: boolean;
 
-  constructor(panelsData: PanelData[], unitOfMeasurement: string, productType: string) {
+  constructor(panelsData: PanelData[], unitOfMeasurement: string, productType: string, isNewOrder: boolean) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.products = panelsData.map((panel) => new Product(panel));
+    this.isNewOrder = isNewOrder;
   }
 
   addProduct(product: Product): void {

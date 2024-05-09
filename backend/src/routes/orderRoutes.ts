@@ -8,6 +8,7 @@ import { getSession, setSession } from '../services/session';
 import {
   getDiscountPeriod,
   getInsurancePercentage,
+  getMinOrderQuantity,
   getShippingCost,
   getUnitPrice,
 } from '../services/utils';
@@ -15,19 +16,28 @@ const order = new Hono<{ Bindings: Bindings }>();
 
 order.post('/', async (c) => {
   const orderData = await c.req.json();
-  const { unitOfMeasurement, productType, products } = orderData;
+  console.log(orderData);
+  const { unitOfMeasurement, productType, products, isNewOrder } = orderData;
   const dashboardData = await dbOperations.getData(
     c.env.DASHBOARD_SETTINGS as KVNamespace,
     'dashboard'
   );
+  let redirectUrl;
   const { discount } = dashboardData;
   const productPrice = getUnitPrice(dashboardData, productType);
   const insurancePercentage = getInsurancePercentage(dashboardData, productType);
   const shippingCost = getShippingCost(dashboardData, productType);
   const orderToken = generateUniqueToken();
   const discountPeriod = getDiscountPeriod(dashboardData, productType);
+  const minOrderQuantity = getMinOrderQuantity(dashboardData, productType);
 
-  const order = new Order(unitOfMeasurement, productType, discount, discountPeriod);
+  const order = new Order(
+    unitOfMeasurement,
+    productType,
+    discount,
+    discountPeriod,
+    minOrderQuantity
+  );
 
   products.forEach((p) => {
     const product = new Product(
@@ -44,12 +54,17 @@ order.post('/', async (c) => {
   });
 
   order.calculateTotalFinalPrice();
-  const sessionTimeout: number = 60 * 60; // 1 hour
+  const sessionTimeout: number = 60 * 120; // 2 hour
   await setSession(c, orderToken, order, sessionTimeout);
+  if (isNewOrder) {
+    redirectUrl = 'https://smartglass.webflow.io/contact-form';
+  } else {
+    redirectUrl = 'https://smartglass.webflow.io/product-detail';
+  }
   return c.json({
     orderToken: orderToken,
     //redirectUrl: 'https://smartglass.webflow.io/product-detail?country=true',
-    redirectUrl: 'https://smartglass.webflow.io/contact-form',
+    redirectUrl: redirectUrl,
   });
 });
 

@@ -16,17 +16,20 @@ export class Order {
   private shippingCost: number = 0;
   private subTotal: number = 0;
   private discountPeriod: number;
+  private minOrderQuantity: number;
 
   constructor(
     unitOfMeasurement: string,
     productType: string,
     discount: number = 0,
-    discountPeriod: number
+    discountPeriod: number,
+    minOrderQuantity: number
   ) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.discount = discount;
     this.discountPeriod = discountPeriod;
+    this.minOrderQuantity = minOrderQuantity;
     const pricingService = PricingService.getInstance(this.productType);
     pricingService.setProductType(this.productType);
   }

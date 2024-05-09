@@ -2,68 +2,52 @@ interface ItemObject {
   [key: string]: string;
 }
 
+function getLowercaseItemObject(itemObject: ItemObject): ItemObject {
+  return Object.keys(itemObject).reduce((acc, key) => {
+    acc[key.toLowerCase()] = itemObject[key];
+    return acc;
+  }, {} as ItemObject);
+}
+
 function getUnitPrice(itemObject: ItemObject, itemName: string): number {
-  // Create a new object with all keys in lowercase
-  const lowercaseItemObject: ItemObject = Object.keys(itemObject).reduce((acc, key) => {
-    acc[key.toLowerCase()] = itemObject[key];
-    return acc;
-  }, {} as ItemObject);
-
-  // Construct the price key using the lowercase item name and 'price' also in lowercase
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
   const priceKey: string = `${itemName.toLowerCase()}price`;
-
-  // Access the price in the object using the lowercase price key
   const priceString: string = lowercaseItemObject[priceKey];
-
-  if (!priceString) {
-    return 0;
-  }
-  return parseFloat(priceString);
+  return priceString ? parseFloat(priceString) : 0;
 }
+
 function getInsurancePercentage(itemObject: ItemObject, itemName: string): number {
-  const lowercaseItemObject: ItemObject = Object.keys(itemObject).reduce((acc, key) => {
-    acc[key.toLowerCase()] = itemObject[key];
-    return acc;
-  }, {} as ItemObject);
-
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
   const insuranceKey: string = `${itemName.toLowerCase()}insurance`;
-
   const insuranceString: string = lowercaseItemObject[insuranceKey];
-
-  if (!insuranceString) {
-    return 0;
-  }
-  return parseFloat(insuranceString);
+  return insuranceString ? parseFloat(insuranceString) : 0;
 }
+
 function getShippingCost(itemObject: ItemObject, itemName: string): number {
-  const lowercaseItemObject: ItemObject = Object.keys(itemObject).reduce((acc, key) => {
-    acc[key.toLowerCase()] = itemObject[key];
-    return acc;
-  }, {} as ItemObject);
-
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
   const shippingKey: string = `${itemName.toLowerCase()}shipping`;
-
   const shippingString: string = lowercaseItemObject[shippingKey];
-
-  if (!shippingString) {
-    return 0;
-  }
-  return parseFloat(shippingString);
+  return shippingString ? parseFloat(shippingString) : 0;
 }
+
 function getDiscountPeriod(itemObject: ItemObject, itemName: string): number {
-  const lowercaseItemObject: ItemObject = Object.keys(itemObject).reduce((acc, key) => {
-    acc[key.toLowerCase()] = itemObject[key];
-    return acc;
-  }, {} as ItemObject);
-
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
   const discountPeriodKey: string = `${itemName.toLowerCase()}discountperiod`;
-
   const discountPeriodString: string = lowercaseItemObject[discountPeriodKey];
-
-  if (!discountPeriodString) {
-    return 0;
-  }
-  return parseFloat(discountPeriodString);
+  return discountPeriodString ? parseFloat(discountPeriodString) : 0;
 }
 
-export { getDiscountPeriod, getInsurancePercentage, getShippingCost, getUnitPrice };
+function getMinOrderQuantity(itemObject: ItemObject, itemName: string): number {
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
+  const minOrderQuantityKey: string = `${itemName.toLowerCase()}minorder`;
+  const minOrderQuantityString: string = lowercaseItemObject[minOrderQuantityKey];
+  return minOrderQuantityString ? parseFloat(minOrderQuantityString) : 0;
+}
+
+export {
+  getDiscountPeriod,
+  getInsurancePercentage,
+  getMinOrderQuantity,
+  getShippingCost,
+  getUnitPrice,
+};
