@@ -43,11 +43,39 @@ async function addOrdersToUI(orderToken: string) {
     const productPanelTemplate = document.querySelector(
       "[bo-elements='product-panel']"
     ) as HTMLDivElement;
-    const unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
     const productTypeSelector = document.querySelector('#productType') as HTMLSelectElement;
-    unitOfMeasurementSelector.value = orders.unitOfMeasurement;
-    productTypeSelector.value = orders.productType;
- 
+    const productTypeText = document.querySelector(
+      "[bo-elements='product-type-selector']"
+    ) as HTMLDivElement;
+    const unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
+    const unitOfMeasurementValue = unitOfMeasurementSelector.value = orders.unitOfMeasurement;
+    const productTypeValue = (productTypeSelector.value = orders.productType);
+    const productTypeValueToFind = productTypeValue; 
+    const productTypeOptionText = Array.from(productTypeSelector.options).find(
+      (option) => option.value === productTypeValueToFind
+    )?.text;
+    productTypeText.textContent = productTypeOptionText ?? null;
+    productTypeSelector.addEventListener('change', () => {
+      const selectedValue = productTypeSelector.value;
+      const selectedOptionText = Array.from(productTypeSelector.options).find(
+        (option) => option.value === selectedValue
+      )?.text;
+      productTypeText.textContent = selectedOptionText ?? null;
+    });
+
+const unitOfMeasurementText = document.querySelector(
+  "[bo-elements='measurement-selector']"
+) as HTMLDivElement;
+
+const unitOfMeasurementValueToFind = unitOfMeasurementValue;
+const unitOfMeasurementOptionText = Array.from(unitOfMeasurementSelector.options).find(
+  (option) => option.value === unitOfMeasurementValueToFind
+)?.text;
+unitOfMeasurementText.textContent = unitOfMeasurementOptionText ?? null;
+unitOfMeasurementSelector.addEventListener('change', () => {
+  const selectedValue = unitOfMeasurementSelector.value;
+  unitOfMeasurementText.textContent = selectedValue;
+});
 
     if (orders.products.length > 0) {
       fillPanelWithProductData(productPanelTemplate, orders.products[0]);
