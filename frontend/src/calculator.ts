@@ -6,6 +6,7 @@ import type { OrderData } from './settings/types';
 import { ApiServices } from './services/ApiServices';
 import { globalSettings } from './settings/globalSettings';
 import { getOrderToken } from './utils/utilities';
+import { set } from 'zod';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
@@ -48,34 +49,34 @@ async function addOrdersToUI(orderToken: string) {
       "[bo-elements='product-type-selector']"
     ) as HTMLDivElement;
     const unitOfMeasurementSelector = document.querySelector('#measurement') as HTMLSelectElement;
-    const unitOfMeasurementValue = unitOfMeasurementSelector.value = orders.unitOfMeasurement;
-    const productTypeValue = (productTypeSelector.value = orders.productType);
-    const productTypeValueToFind = productTypeValue; 
-    const productTypeOptionText = Array.from(productTypeSelector.options).find(
-      (option) => option.value === productTypeValueToFind
-    )?.text;
-    productTypeText.textContent = productTypeOptionText ?? null;
-    productTypeSelector.addEventListener('change', () => {
-      const selectedValue = productTypeSelector.value;
-      const selectedOptionText = Array.from(productTypeSelector.options).find(
-        (option) => option.value === selectedValue
-      )?.text;
-      productTypeText.textContent = selectedOptionText ?? null;
-    });
+    const unitOfMeasurementText = document.querySelector(
+      "[bo-elements='measurement-selector']"
+    ) as HTMLDivElement;
+    const productTypeListElements = document.querySelectorAll(
+      'nav[bo-elements="productTypeList"] a'
+    ) as NodeListOf<HTMLAnchorElement>;
+    const measurementListElements = document.querySelectorAll(
+      'nav[bo-elements="measurementList"] a'
+    ) as NodeListOf<HTMLAnchorElement>;
+    setSelectorValueAndText(
+      productTypeSelector,
+      productTypeText,
+      orders.productType,
+      productTypeListElements
+    );
+    setSelectorValueAndText(
+      unitOfMeasurementSelector,
+      unitOfMeasurementText,
+      orders.unitOfMeasurement,
+      measurementListElements
+    );
 
-const unitOfMeasurementText = document.querySelector(
-  "[bo-elements='measurement-selector']"
-) as HTMLDivElement;
-
-const unitOfMeasurementValueToFind = unitOfMeasurementValue;
-const unitOfMeasurementOptionText = Array.from(unitOfMeasurementSelector.options).find(
-  (option) => option.value === unitOfMeasurementValueToFind
-)?.text;
-unitOfMeasurementText.textContent = unitOfMeasurementOptionText ?? null;
-unitOfMeasurementSelector.addEventListener('change', () => {
-  const selectedValue = unitOfMeasurementSelector.value;
-  unitOfMeasurementText.textContent = selectedValue;
-});
+    productTypeSelector.addEventListener('change', () =>
+      updateSelectorText(productTypeSelector, productTypeText)
+    );
+    unitOfMeasurementSelector.addEventListener('change', () =>
+      updateSelectorText(unitOfMeasurementSelector, unitOfMeasurementText)
+    );
 
     if (orders.products.length > 0) {
       fillPanelWithProductData(productPanelTemplate, orders.products[0]);
@@ -91,6 +92,41 @@ unitOfMeasurementSelector.addEventListener('change', () => {
   } else {
     console.error('Order data is not valid:', orderData);
   }
+}
+
+function setSelectorValueAndText(
+  selector: HTMLSelectElement,
+  textElement: HTMLDivElement,
+  value: string,
+  listElements: NodeListOf<HTMLAnchorElement>
+) {
+  selector.value = value;
+  const optionText = Array.from(selector.options).find((option) => option.value === value)?.text;
+  textElement.textContent = optionText ?? null;
+ setAriaLabel(listElements, optionText as string);
+}
+
+function setAriaLabel(list: NodeListOf<HTMLAnchorElement>, value: string) {
+  list.forEach((element) => {
+    console.log(element.textContent);
+    console.log(element.ariaSelected);
+
+    if (element.textContent === value) {
+      element.setAttribute('aria-selected', 'true');
+      element.classList.add('w--current');
+    } else {
+      element.setAttribute('aria-selected', 'false');
+      element.classList.remove('w--current');
+    }
+  });
+}
+
+function updateSelectorText(selector: HTMLSelectElement, textElement: HTMLDivElement) {
+  const selectedValue = selector.value;
+  const selectedOptionText = Array.from(selector.options).find(
+    (option) => option.value === selectedValue
+  )?.text;
+  textElement.textContent = selectedOptionText ?? null;
 }
 
 function fillPanelWithProductData(panel: HTMLDivElement, product: any) {
