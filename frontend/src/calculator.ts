@@ -58,6 +58,8 @@ async function addOrdersToUI(orderToken: string) {
     const measurementListElements = document.querySelectorAll(
       'nav[bo-elements="measurementList"] a'
     ) as NodeListOf<HTMLAnchorElement>;
+
+    console.log(orders.productType, orders.unitOfMeasurement);
     setSelectorValueAndText(
       productTypeSelector,
       productTypeText,
@@ -107,15 +109,15 @@ function setSelectorValueAndText(
 }
 
 function setAriaLabel(list: NodeListOf<HTMLAnchorElement>, value: string) {
+  console.log(value)
   list.forEach((element) => {
-    console.log(element.textContent);
-    console.log(element.ariaSelected);
-
     if (element.textContent === value) {
       element.setAttribute('aria-selected', 'true');
+      element.tabIndex = 0;
       element.classList.add('w--current');
     } else {
       element.setAttribute('aria-selected', 'false');
+      element.tabIndex = -1;
       element.classList.remove('w--current');
     }
   });

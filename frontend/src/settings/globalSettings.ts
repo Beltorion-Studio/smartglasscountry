@@ -9,5 +9,6 @@ export const globalSettings = {
     logoutUrl: apiBaseUrl + 'logout',
     formUrl: apiBaseUrl + 'form', 
     settingsUrl: apiBaseUrl + 'settings',   
-    buySamples: apiBaseUrl + 'buy-samples',   
+    buySamples: apiBaseUrl + 'buy-samples',
+    checkoutUrl: apiBaseUrl + 'checkout',
 }

@@ -37,7 +37,6 @@ export class CalculatorUI {
     this.orderService = new ApiServices(globalSettings.orderUrl);
     this.isNewOrder = isNewOrder;
     this.urlParams = getUrlParams();
-    console.log(this.urlParams);
     this.removeErrorFromInputs();
     this.bindUIEvents();
     this.addEventListenerToProductTypeSelector();

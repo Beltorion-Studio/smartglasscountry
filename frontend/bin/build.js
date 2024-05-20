@@ -7,7 +7,16 @@ const BUILD_DIRECTORY = 'dist';
 const PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Config entrypoint files
-const ENTRY_POINTS = ['src/index.ts','src/form.ts', 'src/calculator.ts', 'src/dashboard.ts', 'src/custormer-page.ts', 'src/product-detail.ts', 'src/login.ts', 'src/buy-sample.ts'];
+const ENTRY_POINTS = [
+  'src/index.ts',
+  'src/form.ts',
+  'src/calculator.ts',
+  'src/dashboard.ts',
+  'src/custormer-page.ts',
+  'src/product-detail.ts',
+  'src/login.ts',
+  'src/buy-sample.ts',  
+];
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;
 const SERVE_PORT = 3000;
@@ -24,6 +33,11 @@ const context = await esbuild.context({
   inject: LIVE_RELOAD ? ['./bin/live-reload.js'] : undefined,
   define: {
     SERVE_ORIGIN: JSON.stringify(SERVE_ORIGIN),
+    STRIPE_KEY: JSON.stringify(
+      PRODUCTION
+        ? 'pk_test_51LuHdrHiSI5WqDkH5MnIYUVna1Qp3UqZIPX2zHYphVD4S4tYgX2MxGcxqcCaCpVsUA6vnSERwrCWC81bAJLRcQYW00MYEwaG1h'
+        : 'pk_test_51LuHdrHiSI5WqDkH5MnIYUVna1Qp3UqZIPX2zHYphVD4S4tYgX2MxGcxqcCaCpVsUA6vnSERwrCWC81bAJLRcQYW00MYEwaG1h'
+    ),
   },
 });
 

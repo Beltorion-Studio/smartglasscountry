@@ -253,17 +253,35 @@ function setButtons(isCountryUsaOrCanada: boolean, isMinorder: boolean) {
       window.location.href = '/calculator?country=false';
     }
   }
+}
+async function createOrder() {
+  console.log('Creating order...');
+  const orderToken = getOrderToken();
+  if (!orderToken) {
+    return {};
+  }
+  try {
+    const response = await axios.post(`${globalSettings.checkoutUrl}?orderToken=${orderToken}`);
+    console.log('Response:', response.data);
+    if (!response.data.sessionId) {
+      return;
+    }
+    redirectToStripeCheckout(response.data.sessionId);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
-  function createOrder() {
-    axios
-      .get('http://127.0.0.1:8787/checkout')
-      .then((response) => {
-        // Handle the response data here
-        console.log('Response:', response.data);
-      })
-      .catch((error) => {
-        // Handle any errors that occur during the request
-        console.error('Error:', error);
-      });
+async function redirectToStripeCheckout(sessionId: string) {
+  const stripe = Stripe(
+    'pk_test_51LuHdrHiSI5WqDkH5MnIYUVna1Qp3UqZIPX2zHYphVD4S4tYgX2MxGcxqcCaCpVsUA6vnSERwrCWC81bAJLRcQYW00MYEwaG1h'
+  );
+
+  try {
+    // Redirect to Stripe Checkout.
+    await stripe.redirectToCheckout({ sessionId });
+  } catch (error) {
+    // Handle any errors that occur during the redirect.
+    console.error(error);
   }
 }
