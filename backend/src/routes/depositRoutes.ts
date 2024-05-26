@@ -4,14 +4,14 @@ import stripe from 'stripe';
 import { getSession } from '../services/session';
 import { Bindings } from '../types/types';
 
-const checkOut = new Hono<{ Bindings: Bindings }>();
+const deposit = new Hono<{ Bindings: Bindings }>();
 
-checkOut.get('/', async (c) => {
+deposit.get('/', async (c) => {
   //return a text
-  return c.text('Checkout route');
+  return c.text('deposit route');
 });
 
-checkOut.post('/', async (c) => {
+deposit.post('/', async (c) => {
   const stripeClient = new stripe(c.env.STRIPE_CLIENT as string);
   const orderToken: string | undefined = c.req.query('orderToken');
   if (!orderToken) {
@@ -144,4 +144,4 @@ function formatProductName(
   return formattedName;
 }
 
-export { checkOut };
+export { deposit };

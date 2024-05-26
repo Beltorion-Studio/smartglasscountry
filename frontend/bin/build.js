@@ -15,7 +15,8 @@ const ENTRY_POINTS = [
   'src/custormer-page.ts',
   'src/product-detail.ts',
   'src/login.ts',
-  'src/buy-sample.ts',  
+  'src/buy-sample.ts', 
+  'src/order-success.ts', 
 ];
 // Config dev serving
 const LIVE_RELOAD = !PRODUCTION;

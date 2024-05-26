@@ -4,4 +4,6 @@ export type Bindings = {
   SESSION_STORAGE: KVNamespace;
   USERNAME: string;
   PASSWORD: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  STRIPE_CLIENT: string;
 };
