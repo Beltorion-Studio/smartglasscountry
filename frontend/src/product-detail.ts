@@ -1,6 +1,5 @@
 import { cloneNode } from '@finsweet/ts-utils';
 import { ApiServices } from './services/ApiServices';
-import { removeChat } from './utils/removeChat';
 import { getOrderToken, getUrlParams } from './utils/utilities';
 import { ErrorMessageUI } from './components/ErrorMessageUI';
 import { globalSettings } from 'src/settings/globalSettings';
@@ -11,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
     console.log('DOM content loaded');
-    removeChat();
     displayOrders();
   });
 });
@@ -240,6 +238,7 @@ function setButtons(isCountryUsaOrCanada: boolean, isMinorder: boolean) {
   }
 
   buyBtn.addEventListener('click', () => createOrder());
+  depositBtn.addEventListener('click', () => createDepositOrder());
 
   function redirectToCheckout() {
     window.location.href = '#';
@@ -262,6 +261,23 @@ async function createOrder() {
   }
   try {
     const response = await axios.post(`${globalSettings.checkoutUrl}?orderToken=${orderToken}`);
+    console.log('Response:', response.data);
+    if (!response.data.sessionId) {
+      return;
+    }
+    redirectToStripeCheckout(response.data.sessionId);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+async function createDepositOrder() {
+  console.log('Creating deposit order...');
+  const orderToken = getOrderToken();
+  if (!orderToken) {
+    return {};
+  }
+  try {
+    const response = await axios.post(`${globalSettings.depositUrl}?orderToken=${orderToken}`);
     console.log('Response:', response.data);
     if (!response.data.sessionId) {
       return;

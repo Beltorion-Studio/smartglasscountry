@@ -1,11 +1,9 @@
-import { removeChat } from './utils/removeChat';
 declare const STRIPE_KEY: string;
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
     console.log('DOM content loaded');
-    removeChat();
   });
 });
 

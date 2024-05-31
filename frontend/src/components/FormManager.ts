@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import { globalSettings } from 'src/settings/globalSettings';
 import { states } from 'src/settings/states';
 import { Interaction } from '@finsweet/ts-utils';
+import { getOrderToken } from '$utils/utilities';
 
 export class FormManager {
   private form: HTMLFormElement;
@@ -53,8 +54,11 @@ export class FormManager {
     if (!this.submitButton.disabled) {
       const formData = new FormData(this.form);
       const formObject = Object.fromEntries(formData.entries());
-
       console.log(formObject);
+
+      const orderToken = getOrderToken();
+      if (!orderToken) return;
+      formObject['orderToken'] = orderToken;
       try {
         const response = await this.formService.sendData(formObject);
         console.log(response);

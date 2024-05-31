@@ -14,6 +14,7 @@ export const formSchema = z.object({
     .string()
     .refine((val) => val !== 'location', { message: 'Please choose a location!' }),
   country: z.string().refine((val) => val !== 'country', { message: 'Please choose a country!' }),
+  orderToken: z.string().min(1, { message: 'Order Token is required!' }),
 
   // city: z.string().min(1, { message: 'City is required!' }),
   //  address: z.string().min(1, { message: 'Address is required!' }),

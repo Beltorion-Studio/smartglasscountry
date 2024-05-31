@@ -94,6 +94,7 @@ export class CalculatorUI {
     }
   }
 
+
   private collectPanelsData(): Record<string, number>[] {
     const panels = Array.from(document.querySelectorAll("[bo-elements='product-panel']"));
     const panelsData: Record<string, number>[] = [];

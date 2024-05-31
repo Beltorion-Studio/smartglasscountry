@@ -8,6 +8,7 @@
     "hono": "^4.2.2",
     "jose": "^5.2.4",
     "jsonwebtoken": "^9.0.2",
+    "micro": "^10.0.1",
     "sanitize-html": "^2.13.0",
     "stripe": "^15.4.0",
     "zod": "^3.22.4"

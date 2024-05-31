@@ -58,6 +58,7 @@ order.post('/', async (c) => {
   await setSession(c, orderToken, order, sessionTimeout);
   if (isNewOrder) {
     redirectUrl = 'https://smartglass.webflow.io/contact-form';
+    //redirectUrl = 'https://smartglass.webflow.io/product-detail?country=true';
   } else {
     redirectUrl = 'https://smartglass.webflow.io/product-detail';
   }

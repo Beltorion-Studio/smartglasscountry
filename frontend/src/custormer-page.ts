@@ -1,4 +1,3 @@
-import { removeChat } from './utils/removeChat';
 import axios from 'axios';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -6,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.Webflow.push(() => {
     console.log('DOM content loaded');
     redirects();
-    removeChat();
   });
 });
 

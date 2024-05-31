@@ -1,0 +1,113 @@
+{
+  "outcome": "ok",
+  "scriptVersion": {
+    "id": "b1cf6a3e-b0c2-46e0-a5ef-26de4499bfc5"
+  },
+  "scriptName": "backend",
+  "diagnosticsChannelEvents": [],
+  "exceptions": [],
+  "logs": [
+    {
+      "message": [
+        "Raw Body:",
+        "{\n  \"id\": \"evt_1PLocbHiSI5WqDkHnqdqSqjT\",\n  \"object\": \"event\",\n  \"api_version\": \"2022-08-01\",\n  \"created\": 1716997261,\n  \"data\": {\n    \"object\": {\n      \"id\": \"cs_test_b13hliaylIbEWYRi9NBP8nJqdCGCdPkETjPON6TJmj3FGdIZ6i9EL88vvR\",\n      \"object\": \"checkout.session\",\n      \"after_expiration\": null,\n      \"allow_promotion_codes\": null,\n      \"amount_subtotal\": 478144,\n      \"amount_total\": 438664,\n      \"automatic_tax\": {\n        \"enabled\": false,\n        \"liability\": null,\n        \"status\": null\n      },\n      \"billing_address_collection\": null,\n      \"cancel_url\": \"https://smartglass.webflow.io/smart-center/order-canceled\",\n      \"client_reference_id\": null,\n      \"client_secret\": null,\n      \"consent\": null,\n      \"consent_collection\": null,\n      \"created\": 1716997231,\n      \"currency\": \"usd\",\n      \"currency_conversion\": null,\n      \"custom_fields\": [\n\n      ],\n      \"custom_text\": {\n        \"after_submit\": null,\n        \"shipping_address\": null,\n        \"submit\": null,\n        \"terms_of_service_acceptance\": null\n      },\n      \"customer\": null,\n      \"customer_creation\": \"if_required\",\n      \"customer_details\": {\n        \"address\": {\n          \"city\": null,\n          \"country\": \"HU\",\n          \"line1\": null,\n          \"line2\": null,\n          \"postal_code\": null,\n          \"state\": null\n        },\n        \"email\": \"john@gmail.com\",\n        \"name\": \"Jonh Doe\",\n        \"phone\": null,\n        \"tax_exempt\": \"none\",\n        \"tax_ids\": [\n\n        ]\n      },\n      \"customer_email\": null,\n      \"expires_at\": 1717083630,\n      \"invoice\": null,\n      \"invoice_creation\": {\n        \"enabled\": false,\n        \"invoice_data\": {\n          \"account_tax_ids\": null,\n          \"custom_fields\": null,\n          \"description\": null,\n          \"footer\": null,\n          \"issuer\": null,\n          \"metadata\": {\n          },\n          \"rendering_options\": null\n        }\n      },\n      \"livemode\": false,\n      \"locale\": null,\n      \"metadata\": {\n        \"orderToken\": \"11c5acc7-55e4-409a-8c70-659b81c32c3f\"\n      },\n      \"mode\": \"payment\",\n      \"payment_intent\": \"pi_3PLocZHiSI5WqDkH0bB2TIX4\",\n      \"payment_link\": null,\n      \"payment_method_collection\": \"if_required\",\n      \"payment_method_configuration_details\": null,\n      \"payment_method_options\": {\n        \"card\": {\n          \"request_three_d_secure\": \"automatic\"\n        }\n      },\n      \"payment_method_types\": [\n        \"card\"\n      ],\n      \"payment_status\": \"paid\",\n      \"phone_number_collection\": {\n        \"enabled\": false\n      },\n      \"recovered_from\": null,\n      \"saved_payment_method_options\": null,\n      \"setup_intent\": null,\n      \"shipping_address_collection\": null,\n      \"shipping_cost\": {\n        \"amount_subtotal\": 5000,\n        \"amount_tax\": 0,\n        \"amount_total\": 5000,\n        \"shipping_rate\": \"shr_1PLoc6HiSI5WqDkHVoP92mPO\"\n      },\n      \"shipping_details\": null,\n      \"shipping_options\": [\n        {\n          \"shipping_amount\": 5000,\n          \"shipping_rate\": \"shr_1PLoc6HiSI5WqDkHVoP92mPO\"\n        }\n      ],\n      \"status\": \"complete\",\n      \"submit_type\": null,\n      \"subscription\": null,\n      \"success_url\": \"https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true\",\n      \"total_details\": {\n        \"amount_discount\": 44480,\n        \"amount_shipping\": 5000,\n        \"amount_tax\": 0\n      },\n      \"ui_mode\": \"hosted\",\n      \"url\": null\n    }\n  },\n  \"livemode\": false,\n  \"pending_webhooks\": 3,\n  \"request\": {\n    \"id\": null,\n    \"idempotency_key\": null\n  },\n  \"type\": \"checkout.session.completed\"\n}"
+      ],
+      "level": "log",
+      "timestamp": 1716997261933
+    },
+    {
+      "message": [
+        "Stripe Signature:",
+        "t=1716997261,v1=aaa3320364b4cc0cc66295aff01f3915c2a852ffcdc4e547325ef054ddb52ae9,v0=974ef1bd51f952fd7233a2ef3747d3ef4c26f701540c41ea33c2966ffaa38258"
+      ],
+      "level": "log",
+      "timestamp": 1716997261933
+    },
+    {
+      "message": [
+        "Webhook signature verification failed due to incorrect signature:",
+        "Error: No signatures found matching the expected signature for payload. Are you passing the raw request body you received from Stripe? \n If a webhook request is being forwarded by a third-party tool, ensure that the exact request body, including JSON formatting and new line style, is preserved.\n\nLearn more about webhook signing and explore webhook integration examples for various frameworks at https://github.com/stripe/stripe-node#webhook-signing\n"
+      ],
+      "level": "error",
+      "timestamp": 1716997261933
+    }
+  ],
+  "eventTimestamp": 1716997261829,
+  "event": {
+    "request": {
+      "url": "https://backend.beltorion.workers.dev/webhook",
+      "method": "POST",
+      "headers": {
+        "accept": "*/*; q=0.5, application/xml",
+        "accept-encoding": "gzip, br",
+        "cache-control": "no-cache",
+        "cf-connecting-ip": "54.187.205.235",
+        "cf-ipcountry": "US",
+        "cf-ray": "88b796166bd7a36b",
+        "cf-visitor": "{\"scheme\":\"https\"}",
+        "connection": "Keep-Alive",
+        "content-length": "3529",
+        "content-type": "application/json; charset=utf-8",
+        "host": "backend.beltorion.workers.dev",
+        "stripe-signature": "t=1716997261,v1=aaa3320364b4cc0cc66295aff01f3915c2a852ffcdc4e547325ef054ddb52ae9,v0=974ef1bd51f952fd7233a2ef3747d3ef4c26f701540c41ea33c2966ffaa38258",
+        "user-agent": "Stripe/1.0 (+https://stripe.com/docs/webhooks)",
+        "x-forwarded-proto": "https",
+        "x-real-ip": "54.187.205.235"
+      },
+      "cf": {
+        "clientTcpRtt": 9,
+        "longitude": "-119.72570",
+        "httpProtocol": "HTTP/1.1",
+        "tlsCipher": "AEAD-AES256-GCM-SHA384",
+        "continent": "NA",
+        "asn": 16509,
+        "country": "US",
+        "verifiedBotCategory": "Webhooks",
+        "tlsClientAuth": {
+          "certIssuerDNLegacy": "",
+          "certIssuerSKI": "",
+          "certSubjectDNRFC2253": "",
+          "certSubjectDNLegacy": "",
+          "certFingerprintSHA256": "",
+          "certNotBefore": "",
+          "certSKI": "",
+          "certSerial": "",
+          "certIssuerDN": "",
+          "certVerified": "NONE",
+          "certNotAfter": "",
+          "certSubjectDN": "",
+          "certPresented": "0",
+          "certRevoked": "0",
+          "certIssuerSerial": "",
+          "certIssuerDNRFC2253": "",
+          "certFingerprintSHA1": ""
+        },
+        "tlsExportedAuthenticator": {
+          "clientFinished": "9903be0cb0aebc321775c80825ed7b469f6bfcd29101caf37f2de32c8e432dff77ec1d93ab7a1f4c7b2b5edfb02064d6",
+          "clientHandshake": "ba32789910c96caa2126cb92de0c47844800dd0b4795bcc8a9f311db194a8bec65f2f9af786f9ebd119422f8eeb818aa",
+          "serverHandshake": "f266b492534fb180093080ef0653905c6d400bb3a4aec37cc3519b44b603a9a16004f5d9c7a8208bccafbaea8cbe7cdb",
+          "serverFinished": "66c3432489809c44e2e8b43ddb92a2b7a254f6157869d4ba3be96d803192898e53b50fe276b43191988b9dfaaa7a6db8"
+        },
+        "tlsVersion": "TLSv1.3",
+        "city": "Boardman",
+        "timezone": "America/Los_Angeles",
+        "colo": "SEA",
+        "tlsClientHelloLength": "508",
+        "edgeRequestKeepAliveStatus": 1,
+        "postalCode": "97818",
+        "region": "Oregon",
+        "latitude": "45.82340",
+        "requestPriority": "",
+        "regionCode": "OR",
+        "asOrganization": "Amazon.com",
+        "metroCode": "810",
+        "tlsClientExtensionsSha1": "Yl7WDL8Xw09Eclbj8V7V38uOtKI=",
+        "tlsClientRandom": "8v2WtWHj0uNWija0JWJx7GKfDZqkzg3YHkPoetQ4tYY="
+      }
+    },
+    "response": {
+      "status": 400
+    }
+  },
+  "id": 55
+}

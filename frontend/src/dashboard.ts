@@ -1,5 +1,4 @@
 import { DashboardManager } from './components/DashboardManager';
-import { removeChat } from './utils/removeChat';
 const loadingElement = document.querySelector("[bo-elements='page-loader']") as HTMLElement;
 const mainContentElement = document.querySelector("[bo-elements='page-wrapper']") as HTMLElement;
 
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
       window.Webflow ||= [];
       window.Webflow.push(() => {
-        removeChat();
         displayLoading(false);
 
         new DashboardManager();

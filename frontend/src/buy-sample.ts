@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
       window.Webflow ||= [];
       window.Webflow.push(() => {
-        removeChat();
         getSamples(token);
       });
     }

@@ -1,18 +1,16 @@
 import { CalculatorUI } from './components/CalculatorUI';
 import { PanelDuplicator } from './components/PanelDuplicator';
-import { removeChat } from './utils/removeChat';
 import { cloneNode } from '@finsweet/ts-utils';
 import type { OrderData } from './settings/types';
 import { ApiServices } from './services/ApiServices';
 import { globalSettings } from './settings/globalSettings';
 import { getOrderToken } from './utils/utilities';
-import { set } from 'zod';
 
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
     console.log('DOM content loaded');
-    removeChat();
+    resetForm()
     new CalculatorUI(isNewOrder);
   });
 });
@@ -105,11 +103,11 @@ function setSelectorValueAndText(
   selector.value = value;
   const optionText = Array.from(selector.options).find((option) => option.value === value)?.text;
   textElement.textContent = optionText ?? null;
- setAriaLabel(listElements, optionText as string);
+  setAriaLabel(listElements, optionText as string);
 }
 
 function setAriaLabel(list: NodeListOf<HTMLAnchorElement>, value: string) {
-  console.log(value)
+  console.log(value);
   list.forEach((element) => {
     if (element.textContent === value) {
       element.setAttribute('aria-selected', 'true');
@@ -151,4 +149,18 @@ async function fetchOrder(orderToken: string): Promise<OrderData | {}> {
     console.error('Error fetching order data:', error);
     return {};
   }
+}
+function resetForm(): void {
+  const resetBtn = document.querySelector("[bo-elements='reset']");
+  if (!resetBtn) return;
+
+  resetBtn.addEventListener('click', (event) => {
+    console.log('reset form');
+    event.preventDefault();
+    sessionStorage.removeItem('orderToken');
+    const inputFields = document.querySelectorAll('.input-field input');
+    inputFields.forEach((inputField) => {
+      inputField.value = '';
+    });
+  });
 }

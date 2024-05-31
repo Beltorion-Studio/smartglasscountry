@@ -11,4 +11,5 @@ export const globalSettings = {
     settingsUrl: apiBaseUrl + 'settings',   
     buySamples: apiBaseUrl + 'buy-samples',
     checkoutUrl: apiBaseUrl + 'checkout',
+    depositUrl: apiBaseUrl + 'deposit',
 }
