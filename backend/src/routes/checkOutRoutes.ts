@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import stripe from 'stripe';
 
+import { CheckoutServices } from '../services/CheckoutServices';
 import { getSession } from '../services/session';
 import { Bindings } from '../types/types';
 
@@ -14,6 +15,7 @@ checkOut.get('/', async (c) => {
 checkOut.post('/', async (c) => {
   const stripeClient = new stripe(c.env.STRIPE_CLIENT as string);
   const orderToken: string | undefined = c.req.query('orderToken');
+  const checkoutServices = new CheckoutServices();
   if (!orderToken) {
     return c.json({ error: 'Order token not provided' }, { status: 400 });
   }
@@ -39,7 +41,7 @@ checkOut.post('/', async (c) => {
   } = order;
   try {
     const discount = order.discountAmount * 100;
-    const coupon = await createUniqueCoupon(stripeClient, discount);
+    const coupon = await checkoutServices.createUniqueCoupon(stripeClient, discount);
 
     if (!coupon) {
       throw new Error('Coupon could not be created.');
@@ -51,7 +53,11 @@ checkOut.post('/', async (c) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: formatProductName(product.productType, product.size, product.unitOfMeasurement),
+              name: checkoutServices.formatProductName(
+                product.productType,
+                product.size,
+                product.unitOfMeasurement
+              ),
             },
             unit_amount: Math.round(product.totalPrice * 100) / product.quantity,
           },
@@ -104,44 +110,5 @@ checkOut.post('/', async (c) => {
     return c.json({ error: 'Unable to create Stripe session' }, { status: 500 });
   }
 });
-
-async function createUniqueCoupon(
-  stripeClient: stripe,
-  discountPercent: number
-): Promise<stripe.Coupon | null> {
-  try {
-    const coupon = await stripeClient.coupons.create({
-      amount_off: discountPercent,
-      currency: 'usd',
-      duration: 'once',
-    });
-    return coupon;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-function formatProductName(
-  product: string,
-  size?: number,
-  unitOfMeasurement?: 'mm' | 'inches'
-): string {
-  let formattedName = product;
-  if (product === 'smartFilm') {
-    formattedName = 'Smart Film';
-  }
-  if (product === 'smartGlass') {
-    formattedName = 'Smart Glass';
-  }
-  if (product === 'igu') {
-    formattedName = 'IGU';
-  }
-  // Append size and the appropriate unit of measurement to the product name if available
-  if (size && unitOfMeasurement) {
-    const unit = unitOfMeasurement === 'mm' ? 'SQM' : 'SQFT';
-    formattedName += ` (${size} ${unit})`;
-  }
-  return formattedName;
-}
 
 export { checkOut };

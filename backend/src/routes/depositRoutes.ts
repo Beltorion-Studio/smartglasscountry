@@ -1,97 +1,39 @@
 import { Hono } from 'hono';
 import stripe from 'stripe';
 
+import { CheckoutServices } from '../services/CheckoutServices';
 import { getSession } from '../services/session';
-import { Bindings } from '../types/types';
+import { Bindings, Order } from '../types/types';
 
 const deposit = new Hono<{ Bindings: Bindings }>();
 
 deposit.get('/', async (c) => {
-  //return a text
   return c.text('deposit route');
 });
 
 deposit.post('/', async (c) => {
   const stripeClient = new stripe(c.env.STRIPE_CLIENT as string);
   const orderToken: string | undefined = c.req.query('orderToken');
+  const checkoutServices = new CheckoutServices();
+
   if (!orderToken) {
     return c.json({ error: 'Order token not provided' }, { status: 400 });
   }
-  const order = await getSession(c, orderToken as string);
+  const order: Order | undefined = await getSession(c, orderToken as string);
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
-  const body: {
-    products: Array<{
-      totalPrice: number;
-      quantity: number;
-      productType: string;
-      unitOfMeasurement: 'mm' | 'inches';
-      size: number;
-    }>;
-    shippingCost: number;
-    insuranceCost: number;
-    cratingCost: number;
-    discountAmount: number;
-    discount: string;
-    tax: number;
-    subTotal: number;
-  } = order;
   try {
     const discount = order.discountAmount * 100;
-    const coupon = await createUniqueCoupon(stripeClient, discount);
+    const coupon = await checkoutServices.createUniqueCoupon(stripeClient, discount);
 
     if (!coupon) {
       throw new Error('Coupon could not be created.');
     }
     const session = await stripeClient.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        ...body.products.map((product) => ({
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: formatProductName(product.productType, product.size, product.unitOfMeasurement),
-            },
-            unit_amount: Math.round(product.totalPrice * 100) / product.quantity,
-          },
-          quantity: product.quantity,
-        })),
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Insurance Cost',
-            },
-            unit_amount: Math.round(body.insuranceCost * 100),
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Crating Cost',
-            },
-            unit_amount: Math.round(body.cratingCost * 100),
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: createLineItems(order, checkoutServices),
       mode: 'payment',
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: {
-              amount: Math.round(body.shippingCost * 100),
-              currency: 'usd',
-            },
-            display_name: 'Standard Shipping',
-          },
-        },
-      ],
-      discounts: coupon ? [{ coupon: coupon.id }] : [],
       metadata: {
         orderToken,
       },
@@ -105,43 +47,121 @@ deposit.post('/', async (c) => {
   }
 });
 
-async function createUniqueCoupon(
-  stripeClient: stripe,
-  discountPercent: number
-): Promise<stripe.Coupon | null> {
-  try {
-    const coupon = await stripeClient.coupons.create({
-      amount_off: discountPercent,
-      currency: 'usd',
-      duration: 'once',
-    });
-    return coupon;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+function formatPrice(price: number): string {
+  return `$${price.toFixed(2)}`;
 }
-function formatProductName(
-  product: string,
-  size?: number,
-  unitOfMeasurement?: 'mm' | 'inches'
-): string {
-  let formattedName = product;
-  if (product === 'smartFilm') {
-    formattedName = 'Smart Film';
-  }
-  if (product === 'smartGlass') {
-    formattedName = 'Smart Glass';
-  }
-  if (product === 'igu') {
-    formattedName = 'IGU';
-  }
-  // Append size and the appropriate unit of measurement to the product name if available
-  if (size && unitOfMeasurement) {
-    const unit = unitOfMeasurement === 'mm' ? 'SQM' : 'SQFT';
-    formattedName += ` (${size} ${unit})`;
-  }
-  return formattedName;
+
+function createLineItems(
+  order: Order,
+  checkoutServices: CheckoutServices
+): stripe.Checkout.SessionCreateParams.LineItem[] {
+  const lineItems: stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Deposit',
+          description: 'Total charge for your order',
+        },
+        unit_amount: 50000, // $500 in cents
+      },
+      quantity: 1,
+    },
+    ...order.products.map((product) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: checkoutServices.formatProductName(
+            product.productType,
+            product.size,
+            product.unitOfMeasurement
+          ),
+          description: `Quantity: ${product.quantity}, Total Price: ${formatPrice(product.totalPrice)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: product.quantity,
+    })),
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Total Regular Price',
+          description: `Total Regular Price: ${formatPrice(order.totalRegularPrice)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Insurance Cost',
+          description: `Insurance Cost: ${formatPrice(order.insuranceCost)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Crating Cost',
+          description: `Crating Cost: ${formatPrice(order.cratingCost)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Shipping Cost',
+          description: `Shipping Cost: ${formatPrice(order.shippingCost)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Subtotal',
+          description: `Subtotal: ${formatPrice(order.subTotal)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Discount',
+          description: `Discount: -${formatPrice(order.discountAmount)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+    {
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Total final price',
+          description: `Total final price: ${formatPrice(order.totalFinalPrice)}`,
+        },
+        unit_amount: 0,
+      },
+      quantity: 1,
+    },
+  ];
+
+  return lineItems;
 }
 
 export { deposit };

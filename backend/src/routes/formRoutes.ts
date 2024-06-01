@@ -5,12 +5,13 @@ import { ZodError } from 'zod';
 import { formSchema } from '../models/contactFormSchema';
 import { sanitizeData } from '../services/sanitizeData';
 import { getSession } from '../services/session';
+import { FormData, Order, Payload, Product } from '../types/types';
 const form = new Hono<{ Bindings: Bindings }>();
 
 form.post('/', async (c) => {
   try {
     const form = await c.req.json();
-    const sanitizedForm = sanitizeData(form);
+    const sanitizedForm = sanitizeData(form) as FormData;
 
     const { error } = validateFormData(sanitizedForm);
     if (error) {
@@ -24,8 +25,10 @@ form.post('/', async (c) => {
       redirectUrl = 'https://smartglass.webflow.io/product-detail?country=false';
     }
     console.log(sanitizedForm);
-    const order = await getSession(c, sanitizedForm.orderToken as string);
+    const order = (await getSession(c, sanitizedForm.orderToken)) as Order;
     console.log(order);
+    const payload = generateSalesforcePayload(sanitizedForm, order);
+    console.log(payload);
 
     // send form data to salesforce api
     //await sendFormToSalesforce(sanitizedForm);
@@ -55,44 +58,37 @@ function validateFormData(data: { [key: string]: string }): {
   return { data: parsedData.data, error: null };
 }
 
-function generateSalesforcePayload(
-  formData: { [key: string]: string },
-  orderData: {
-    products: Array<{
-      width: number;
-      height: number;
-      quantity: number;
-      productType: string;
-      squareFootage: number;
-      totalPrice: number;
-    }>;
-    totalRegularPrice: number;
-    productType: string;
-  }
-) {
-  const payload = {
-    formData: {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      projectType: formData.projectType,
-      roleInProject: formData.roleInProject,
-      location: formData.location,
-      country: formData.country,
-      state: formData.state,
-    },
-    orderDetails: {
-      products: orderData.products.map((product) => ({
-        width: product.width,
-        height: product.height,
-        quantity: product.quantity,
-      })),
-      productType: orderData.productType,
-      totalsqft: orderData.products.reduce(
-        (acc, product) => acc + product.squareFootage * product.quantity,
-        0
-      ),
-      totalPrice: orderData.totalRegularPrice,
+function calculateTotalSqft(products: Product[]): number {
+  const totalsqft = products.reduce(
+    (acc, { squareFootage, quantity }) => acc + squareFootage * quantity,
+    0
+  );
+  return parseFloat(totalsqft.toFixed(2));
+}
+
+function generateSalesforcePayload(formData: FormData, orderData: Order): Payload {
+  const payload: Payload = {
+    [formData.orderToken]: {
+      formData: {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        projectType: formData.projectType,
+        roleInProject: formData.roleInProject,
+        location: formData.location,
+        country: formData.country,
+        state: formData.state,
+      },
+      orderDetails: {
+        products: orderData.products.map(({ width, height, quantity }) => ({
+          width,
+          height,
+          quantity,
+        })),
+        productType: orderData.productType,
+        totalsqft: calculateTotalSqft(orderData.products),
+        totalRegularPrice: parseFloat(orderData.totalRegularPrice.toFixed(2)),
+      },
     },
   };
 

@@ -158,7 +158,8 @@ function resetForm(): void {
     console.log('reset form');
     event.preventDefault();
     sessionStorage.removeItem('orderToken');
-    const inputFields = document.querySelectorAll('.input-field input');
+    isNewOrder = true
+    const inputFields = document.querySelectorAll('.input-field input') as NodeListOf<HTMLInputElement>;
     inputFields.forEach((inputField) => {
       inputField.value = '';
     });
