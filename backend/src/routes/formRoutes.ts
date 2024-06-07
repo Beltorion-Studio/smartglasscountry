@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 import { formSchema } from '../models/contactFormSchema';
 import { sanitizeData } from '../services/sanitizeData';
 import { getSession } from '../services/session';
-import { FormData, Order, Payload, Product } from '../types/types';
+import { FormData, OrderData, Payload, Product } from '../types/types';
 const form = new Hono<{ Bindings: Bindings }>();
 
 form.post('/', async (c) => {
@@ -25,7 +25,7 @@ form.post('/', async (c) => {
       redirectUrl = 'https://smartglass.webflow.io/product-detail?country=false';
     }
     console.log(sanitizedForm);
-    const order = (await getSession(c, sanitizedForm.orderToken)) as Order;
+    const order = (await getSession(c, sanitizedForm.orderToken)) as OrderData;
     console.log(order);
     const payload = generateSalesforcePayload(sanitizedForm, order);
     console.log(payload);
@@ -66,7 +66,7 @@ function calculateTotalSqft(products: Product[]): number {
   return parseFloat(totalsqft.toFixed(2));
 }
 
-function generateSalesforcePayload(formData: FormData, orderData: Order): Payload {
+function generateSalesforcePayload(formData: FormData, orderData: OrderData): Payload {
   const payload: Payload = {
     [formData.orderToken]: {
       formData: {

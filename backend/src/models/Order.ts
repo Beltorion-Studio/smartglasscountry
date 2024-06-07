@@ -23,13 +23,15 @@ export class Order {
     productType: string,
     discount: number = 0,
     discountPeriod: number,
-    minOrderQuantity: number
+    minOrderQuantity: number,
+    cratingCost: number
   ) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.discount = discount;
     this.discountPeriod = discountPeriod;
     this.minOrderQuantity = minOrderQuantity;
+    this.cratingCost = cratingCost;
     const pricingService = PricingService.getInstance(this.productType);
     pricingService.setProductType(this.productType);
   }
@@ -49,8 +51,12 @@ export class Order {
     return this.products.reduce((sum, product) => sum + product.getInsuranceCost(), 0);
   }
   calculateShippingCost(): number {
-    return this.products.reduce((sum, product) => sum + product.shippingCost, 0);
+    if (this.products.length > 0) {
+      return this.products[0].shippingCost;
+    }
+    return 0;
   }
+
   /*
   calculateDiscount(price): number {
     return price * this.discount * 0.01;
@@ -61,11 +67,11 @@ export class Order {
   }
 
   calculateTotalFinalPrice(): void {
-    const pricingService = PricingService.getInstance(this.productType);
+    // const pricingService = PricingService.getInstance(this.productType);
     this.totalRegularPrice = this.calculateTotalRegularPrice();
     this.shippingCost = this.calculateShippingCost();
     this.insuranceCost = this.calculateInsurance();
-    this.cratingCost = pricingService.calculateCrating();
+    this.cratingCost = this.cratingCost;
     this.subTotal =
       this.shippingCost + this.insuranceCost + this.cratingCost + this.totalRegularPrice;
     this.discountAmount = this.calculateDiscount(this.totalRegularPrice);

@@ -3,7 +3,7 @@ import stripe from 'stripe';
 
 import { CheckoutServices } from '../services/CheckoutServices';
 import { getSession } from '../services/session';
-import { Bindings, Order } from '../types/types';
+import { Bindings, OrderData } from '../types/types';
 
 const deposit = new Hono<{ Bindings: Bindings }>();
 
@@ -19,12 +19,12 @@ deposit.post('/', async (c) => {
   if (!orderToken) {
     return c.json({ error: 'Order token not provided' }, { status: 400 });
   }
-  const order: Order | undefined = await getSession(c, orderToken as string);
+  const order: OrderData | undefined = await getSession(c, orderToken as string);
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
   try {
-    const discount = order.discountAmount * 100;
+    const discount = Math.round(order.discountAmount * 100);
     const coupon = await checkoutServices.createUniqueCoupon(stripeClient, discount);
 
     if (!coupon) {
@@ -52,7 +52,7 @@ function formatPrice(price: number): string {
 }
 
 function createLineItems(
-  order: Order,
+  order: OrderData,
   checkoutServices: CheckoutServices
 ): stripe.Checkout.SessionCreateParams.LineItem[] {
   const lineItems: stripe.Checkout.SessionCreateParams.LineItem[] = [

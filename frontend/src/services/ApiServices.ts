@@ -23,7 +23,6 @@ export class ApiServices {
       // Construct query string from params if they exist
       const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
       const urlWithParams = `${this.apiEndpoint}${queryString}`;
-      console.log(urlWithParams);
      // const response = await fetch(urlWithParams);
       const response = await fetch(urlWithParams);
       if (!response.ok) {

@@ -3,7 +3,7 @@ import stripe from 'stripe';
 
 import { CheckoutServices } from '../services/CheckoutServices';
 import { getSession } from '../services/session';
-import { Bindings } from '../types/types';
+import { Bindings, OrderData } from '../types/types';
 
 const checkOut = new Hono<{ Bindings: Bindings }>();
 
@@ -19,28 +19,30 @@ checkOut.post('/', async (c) => {
   if (!orderToken) {
     return c.json({ error: 'Order token not provided' }, { status: 400 });
   }
-  const order = await getSession(c, orderToken as string);
+  const order = (await getSession(c, orderToken as string)) as OrderData;
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
+  console.log(order);
   const body: {
     products: Array<{
       totalPrice: number;
       quantity: number;
       productType: string;
-      unitOfMeasurement: 'mm' | 'inches';
+      // unitOfMeasurement: 'mm' | 'inches';
+      unitOfMeasurement: string;
       size: number;
     }>;
     shippingCost: number;
     insuranceCost: number;
     cratingCost: number;
     discountAmount: number;
-    discount: string;
+    discount: number;
     tax: number;
     subTotal: number;
   } = order;
   try {
-    const discount = order.discountAmount * 100;
+    const discount = Math.round(order.discountAmount * 100);
     const coupon = await checkoutServices.createUniqueCoupon(stripeClient, discount);
 
     if (!coupon) {

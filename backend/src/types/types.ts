@@ -49,9 +49,9 @@ type Product = {
   unitOfMeasurement: string;
 };
 
-type Order = {
+type OrderData = {
   products: Product[];
-  discount: string;
+  discount: number;
   unitOfMeasurement: string;
   productType: string;
   totalRegularPrice: number;
@@ -65,6 +65,31 @@ type Order = {
   subTotal: number;
   discountPeriod: number;
   minOrderQuantity: number;
+  isNewOrder?: boolean;
+  isUsaOrCanada?: boolean;
 };
 
-export { Bindings, FormData, Order, Payload, Product };
+type DashboardData = {
+  discount: string;
+  smartFilmDiscountPeriod: string;
+  smartFilmPrice: string;
+  smartFilmMinOrder: string;
+  smartFilmShipping: string;
+  smartFilmInsurance: string;
+  smartFilmCrating: string;
+  smartGlassDiscountPeriod: string;
+  smartGlassPrice: string;
+  smartGlassMinOrder: string;
+  smartGlassShipping: string;
+  smartGlassInsurance: string;
+  smartGlassCrating: string;
+  iguDiscountPeriod: string;
+  iguPrice: string;
+  iguMinOrder: string;
+  iguShipping: string;
+  iguInsurance: string;
+  iguCrating: string;
+  apiKey: string;
+};
+
+export { Bindings, DashboardData, FormData, OrderData, Payload, Product };

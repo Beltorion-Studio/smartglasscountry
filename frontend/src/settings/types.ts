@@ -1,4 +1,4 @@
- type Product = {
+type ProductData = {
   width: number;
   height: number;
   quantity: number;
@@ -13,9 +13,9 @@
   unitOfMeasurement: string;
 };
 
- type OrderData = {
-  products: Product[];
-  discount: string;
+type OrderData = {
+  products: ProductData[];
+  discount: number;
   unitOfMeasurement: string;
   productType: string;
   totalRegularPrice: number;
@@ -29,22 +29,23 @@
   subTotal: number;
   discountPeriod: number;
   minOrderQuantity: number;
+  [key: string]: string | number | ProductData[];
 };
 
- type PanelData ={
+type PanelData = {
   width: number;
   height: number;
   quantity: number;
-}
+};
 
- type OrderResponse= {
+type OrderResponse = {
   redirectUrl?: string;
   orderToken?: string;
   error?: string;
-}
+};
 
- type UrlParams = {
+type UrlParams = {
   country?: string;
 };
 
-export type {OrderData, PanelData, OrderResponse, UrlParams}
+export type { OrderData, PanelData, OrderResponse, UrlParams };

@@ -7,6 +7,7 @@ import dashboard from './routes/dashboardRoutes';
 import { deposit } from './routes/depositRoutes';
 import { form } from './routes/formRoutes';
 import logIn from './routes/logInRoutes';
+import { mail } from './routes/mailRoutes';
 import { order } from './routes/orderRoutes';
 import { sample } from './routes/sampleRoutes';
 import { settings } from './routes/settingsRoutes';
@@ -37,5 +38,6 @@ app.route('/samples', sample);
 app.route('/checkout', checkOut);
 app.route('/webhook', webhook);
 app.route('/deposit', deposit);
+app.route('/mail', mail);
 
 export default app;

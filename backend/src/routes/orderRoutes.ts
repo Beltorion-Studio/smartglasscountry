@@ -1,27 +1,29 @@
 import { Hono } from 'hono';
-import { Bindings } from 'hono/types';
 
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { dbOperations } from '../services/DbOperations';
 import { getSession, setSession } from '../services/session';
 import {
+  getCratingCost,
   getDiscountPeriod,
   getInsurancePercentage,
   getMinOrderQuantity,
   getShippingCost,
   getUnitPrice,
 } from '../services/utils';
+import { Bindings, OrderData } from '../types/types';
+import { DashboardData } from '../types/types';
 const order = new Hono<{ Bindings: Bindings }>();
 
 order.post('/', async (c) => {
-  const orderData = await c.req.json();
+  const orderData: OrderData = await c.req.json();
   console.log(orderData);
   const { unitOfMeasurement, productType, products, isNewOrder } = orderData;
-  const dashboardData = await dbOperations.getData(
+  const dashboardData = (await dbOperations.getData(
     c.env.DASHBOARD_SETTINGS as KVNamespace,
     'dashboard'
-  );
+  )) as DashboardData;
   let redirectUrl;
   const { discount } = dashboardData;
   const productPrice = getUnitPrice(dashboardData, productType);
@@ -30,13 +32,15 @@ order.post('/', async (c) => {
   const orderToken = generateUniqueToken();
   const discountPeriod = getDiscountPeriod(dashboardData, productType);
   const minOrderQuantity = getMinOrderQuantity(dashboardData, productType);
+  const cratingCost = getCratingCost(dashboardData, productType);
 
   const order = new Order(
     unitOfMeasurement,
     productType,
-    discount,
+    Number(discount),
     discountPeriod,
-    minOrderQuantity
+    minOrderQuantity,
+    cratingCost
   );
 
   products.forEach((p) => {

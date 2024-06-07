@@ -36,6 +36,12 @@ function getDiscountPeriod(itemObject: ItemObject, itemName: string): number {
   const discountPeriodString: string = lowercaseItemObject[discountPeriodKey];
   return discountPeriodString ? parseFloat(discountPeriodString) : 0;
 }
+function getCratingCost(itemObject: ItemObject, itemName: string): number {
+  const lowercaseItemObject = getLowercaseItemObject(itemObject);
+  const cratingKey: string = `${itemName.toLowerCase()}crating`;
+  const cratingString: string = lowercaseItemObject[cratingKey];
+  return cratingString ? parseFloat(cratingString) : 0;
+}
 
 function getMinOrderQuantity(itemObject: ItemObject, itemName: string): number {
   const lowercaseItemObject = getLowercaseItemObject(itemObject);
@@ -45,6 +51,7 @@ function getMinOrderQuantity(itemObject: ItemObject, itemName: string): number {
 }
 
 export {
+  getCratingCost,
   getDiscountPeriod,
   getInsurancePercentage,
   getMinOrderQuantity,
