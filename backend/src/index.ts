@@ -4,6 +4,7 @@ import { Bindings } from 'hono/types';
 
 import { checkOut } from './routes/checkOutRoutes';
 import dashboard from './routes/dashboardRoutes';
+import { db } from './routes/dbRouts';
 import { deposit } from './routes/depositRoutes';
 import { form } from './routes/formRoutes';
 import logIn from './routes/logInRoutes';
@@ -39,5 +40,6 @@ app.route('/checkout', checkOut);
 app.route('/webhook', webhook);
 app.route('/deposit', deposit);
 app.route('/mail', mail);
+app.route('/db', db);
 
 export default app;

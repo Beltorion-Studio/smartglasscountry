@@ -27,3 +27,5 @@ typings/
 
 # Production files
 dist
+
+.github

@@ -1,10 +1,10 @@
 import { Product } from './Product';
 
-interface PanelData {
+type PanelData = {
   width: number;
   height: number;
   quantity: number;
-}
+};
 
 export class Order {
   private products: Product[] = [];
@@ -12,7 +12,12 @@ export class Order {
   private productType: string;
   private isNewOrder: boolean;
 
-  constructor(panelsData: PanelData[], unitOfMeasurement: string, productType: string, isNewOrder: boolean) {
+  constructor(
+    panelsData: PanelData[],
+    unitOfMeasurement: string,
+    productType: string,
+    isNewOrder: boolean
+  ) {
     this.unitOfMeasurement = unitOfMeasurement;
     this.productType = productType;
     this.products = panelsData.map((panel) => new Product(panel));

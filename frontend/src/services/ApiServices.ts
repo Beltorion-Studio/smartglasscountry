@@ -23,7 +23,7 @@ export class ApiServices {
       // Construct query string from params if they exist
       const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
       const urlWithParams = `${this.apiEndpoint}${queryString}`;
-     // const response = await fetch(urlWithParams);
+      // const response = await fetch(urlWithParams);
       const response = await fetch(urlWithParams);
       if (!response.ok) {
         throw new Error('Error fetching data');
@@ -35,8 +35,13 @@ export class ApiServices {
     }
   }
 
-  public async sendData(data: any): Promise<any> {
+  public async sendData<T>(data: T, orderToken?: string): Promise<any> {
     try {
+      // Check if an orderToken is provided and append it to the URL
+      const url = orderToken
+        ? `${this.apiEndpoint}?orderToken=${encodeURIComponent(orderToken)}`
+        : this.apiEndpoint;
+
       const requestOptions = {
         method: 'POST',
         headers: {
@@ -45,7 +50,7 @@ export class ApiServices {
         body: JSON.stringify(data),
       };
 
-      const response = await fetch(this.apiEndpoint, requestOptions);
+      const response = await fetch(url, requestOptions);
       if (!response.ok) {
         throw new Error('Error sending order');
       }
@@ -57,20 +62,19 @@ export class ApiServices {
   }
   public async sendForm(formData: FormData): Promise<any> {
     try {
-        const requestOptions = {
-            method: 'POST',
-            body: formData 
-        };
+      const requestOptions = {
+        method: 'POST',
+        body: formData,
+      };
 
-        const response = await fetch(this.apiEndpoint, requestOptions);
-        if (!response.ok) {
-            throw new Error('Error sending form');
-        }
-        return await response.json();
+      const response = await fetch(this.apiEndpoint, requestOptions);
+      if (!response.ok) {
+        throw new Error('Error sending form');
+      }
+      return await response.json();
     } catch (error) {
-        console.error('ApiServices sendForm:', error);
-        throw error;
+      console.error('ApiServices sendForm:', error);
+      throw error;
     }
-}
-
+  }
 }

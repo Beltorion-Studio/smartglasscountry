@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import stripe from 'stripe';
 
 import { CheckoutServices } from '../services/CheckoutServices';
+import { updateOrder } from '../services/db';
 import { getSession } from '../services/session';
 import { Bindings, OrderData } from '../types/types';
 
@@ -22,6 +23,11 @@ deposit.post('/', async (c) => {
   const order: OrderData | undefined = await getSession(c, orderToken as string);
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
+  }
+  const updateOrderInDb = await updateOrder(c.env.DB, order, orderToken);
+
+  if (!updateOrderInDb) {
+    throw new Error('Failed to insert form data into the database');
   }
   try {
     const discount = Math.round(order.discountAmount * 100);

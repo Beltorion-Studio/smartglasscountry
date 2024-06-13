@@ -10,15 +10,25 @@ type Bindings = {
   PASSWORD: string;
   STRIPE_WEBHOOK_SECRET: string;
   STRIPE_CLIENT: string;
+  DB: D1Database;
 };
 
 type FormData = z.infer<typeof formSchema>;
-
 type ProductData = {
+  productType: string;
   width: number;
   height: number;
   quantity: number;
+};
+
+type OrderFormData = {
+  products: Product[];
+  unitOfMeasurement: string;
   productType: string;
+  isNewOrder: boolean;
+};
+
+type ExtendedProductData = ProductData & {
   squareFootage: number;
 };
 
@@ -92,4 +102,14 @@ type DashboardData = {
   apiKey: string;
 };
 
-export { Bindings, DashboardData, FormData, OrderData, Payload, Product };
+export {
+  Bindings,
+  DashboardData,
+  ExtendedProductData,
+  FormData,
+  OrderData,
+  OrderFormData,
+  Payload,
+  Product,
+  ProductData,
+};

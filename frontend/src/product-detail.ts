@@ -131,7 +131,6 @@ function setButtons(isCountryUsaOrCanada: boolean, isMinorder: boolean) {
 }
 
 async function createOrder() {
-  console.log('Creating order...');
   const orderToken = getOrderToken();
   if (!orderToken) {
     return {};
@@ -149,7 +148,6 @@ async function createOrder() {
 }
 
 async function createDepositOrder() {
-  console.log('Creating deposit order...');
   const orderToken = getOrderToken();
   if (!orderToken) {
     return {};

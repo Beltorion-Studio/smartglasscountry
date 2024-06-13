@@ -22,10 +22,10 @@ kv_namespaces = [
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
+[[d1_databases]]
+binding = "DB"
+database_name = "form_submissions_db"
+database_id = "9bc46ce0-5195-4d57-9ef8-9cabb9455bb6"
 
 # [ai]
 # binding = "AI"

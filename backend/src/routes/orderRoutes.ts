@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
+import { updateOrder } from '../services/db';
 import { dbOperations } from '../services/DbOperations';
 import { getSession, setSession } from '../services/session';
 import {
@@ -12,12 +13,13 @@ import {
   getShippingCost,
   getUnitPrice,
 } from '../services/utils';
-import { Bindings, OrderData } from '../types/types';
+import { Bindings, OrderFormData } from '../types/types';
 import { DashboardData } from '../types/types';
 const order = new Hono<{ Bindings: Bindings }>();
 
 order.post('/', async (c) => {
-  const orderData: OrderData = await c.req.json();
+  const orderData: OrderFormData = await c.req.json();
+  let orderToken: string | undefined = c.req.query('orderToken');
   console.log(orderData);
   const { unitOfMeasurement, productType, products, isNewOrder } = orderData;
   const dashboardData = (await dbOperations.getData(
@@ -29,7 +31,6 @@ order.post('/', async (c) => {
   const productPrice = getUnitPrice(dashboardData, productType);
   const insurancePercentage = getInsurancePercentage(dashboardData, productType);
   const shippingCost = getShippingCost(dashboardData, productType);
-  const orderToken = generateUniqueToken();
   const discountPeriod = getDiscountPeriod(dashboardData, productType);
   const minOrderQuantity = getMinOrderQuantity(dashboardData, productType);
   const cratingCost = getCratingCost(dashboardData, productType);
@@ -59,11 +60,14 @@ order.post('/', async (c) => {
 
   order.calculateTotalFinalPrice();
   const sessionTimeout: number = 60 * 120; // 2 hour
-  await setSession(c, orderToken, order, sessionTimeout);
-  if (isNewOrder) {
+  if (!orderToken) {
+    orderToken = generateUniqueToken();
+    await setSession(c, orderToken, order, sessionTimeout);
     redirectUrl = 'https://smartglass.webflow.io/contact-form';
     //redirectUrl = 'https://smartglass.webflow.io/product-detail?country=true';
   } else {
+    await setSession(c, orderToken, order, sessionTimeout);
+
     redirectUrl = 'https://smartglass.webflow.io/product-detail';
   }
   return c.json({

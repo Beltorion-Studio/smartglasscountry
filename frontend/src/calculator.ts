@@ -57,7 +57,6 @@ async function addOrdersToUI(orderToken: string) {
       'nav[bo-elements="measurementList"] a'
     ) as NodeListOf<HTMLAnchorElement>;
 
-    console.log(orders.productType, orders.unitOfMeasurement);
     setSelectorValueAndText(
       productTypeSelector,
       productTypeText,
@@ -107,7 +106,6 @@ function setSelectorValueAndText(
 }
 
 function setAriaLabel(list: NodeListOf<HTMLAnchorElement>, value: string) {
-  console.log(value);
   list.forEach((element) => {
     if (element.textContent === value) {
       element.setAttribute('aria-selected', 'true');
@@ -155,7 +153,6 @@ function resetForm(): void {
   if (!resetBtn) return;
 
   resetBtn.addEventListener('click', (event) => {
-    console.log('reset form');
     event.preventDefault();
     sessionStorage.removeItem('orderToken');
     isNewOrder = true

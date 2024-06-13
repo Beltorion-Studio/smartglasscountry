@@ -48,4 +48,16 @@ type UrlParams = {
   country?: string;
 };
 
-export type { OrderData, PanelData, OrderResponse, UrlParams };
+type Product = PanelData & {
+  productType: string;
+};
+
+type OrderFormData = {
+  products: Product[];
+  unitOfMeasurement: string;
+  productType: string;
+  isNewOrder: boolean;
+};
+
+
+export type { OrderData, PanelData, OrderResponse, UrlParams, Product, OrderFormData };

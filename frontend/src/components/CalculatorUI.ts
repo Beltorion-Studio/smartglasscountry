@@ -2,8 +2,8 @@ import { Order } from '../models/Order';
 import { ErrorMessageUI } from './ErrorMessageUI';
 import { ApiServices } from 'src/services/ApiServices';
 import { globalSettings } from 'src/settings/globalSettings';
-import { getUrlParams } from 'src/utils/utilities';
-import type { UrlParams } from 'src/settings/types';
+import { getOrderToken, getUrlParams } from 'src/utils/utilities';
+import type { OrderData, UrlParams, OrderFormData } from 'src/settings/types';
 
 type PanelData = {
   width: number;
@@ -71,7 +71,9 @@ export class CalculatorUI {
       }
       console.log(panelsData);
       const newOrder = new Order(panelsData, unitOfMeasurement, productType, this.isNewOrder);
-      const responseData = await this.submitOrder(newOrder);
+      const orderToken = getOrderToken() ?? undefined;
+console.log(orderToken);
+      const responseData = await this.submitOrder(newOrder, orderToken);
       if (responseData.redirectUrl && responseData.orderToken) {
         sessionStorage.setItem('orderToken', responseData.orderToken);
         let redirectUrl = responseData.redirectUrl;
@@ -83,9 +85,12 @@ export class CalculatorUI {
     });
   }
 
-  private async submitOrder(orderData: any): Promise<OrderResponse> {
+  private async submitOrder(
+    orderData: Order,
+    orderToken?: string | undefined
+  ): Promise<OrderResponse> {
     try {
-      const response = await this.orderService.sendData(orderData);
+      const response = await this.orderService.sendData(orderData, orderToken);
       console.log(response);
       return response;
     } catch (error) {
@@ -93,7 +98,6 @@ export class CalculatorUI {
       throw error;
     }
   }
-
 
   private collectPanelsData(): Record<string, number>[] {
     const panels = Array.from(document.querySelectorAll("[bo-elements='product-panel']"));
@@ -108,7 +112,7 @@ export class CalculatorUI {
     return panelsData;
   }
 
-  private collectPanelData(panel: Element): Record<string, number> | null {
+  private collectPanelData(panel: Element): PanelData | null {
     if (!this.validatePanelData(panel)) {
       return null;
     }
@@ -122,7 +126,7 @@ export class CalculatorUI {
       panelData[name] = value;
     });
 
-    return panelData;
+    return panelData as PanelData;
   }
 
   getUnitOfMeasurement() {

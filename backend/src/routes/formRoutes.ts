@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
-import { Bindings } from 'hono/types';
 import { ZodError } from 'zod';
 
 import { formSchema } from '../models/contactFormSchema';
+import { insertFormData, insertOrder } from '../services/db';
 import { sanitizeData } from '../services/sanitizeData';
 import { getSession } from '../services/session';
+import { Bindings } from '../types/types';
 import { FormData, OrderData, Payload, Product } from '../types/types';
 const form = new Hono<{ Bindings: Bindings }>();
 
@@ -30,6 +31,22 @@ form.post('/', async (c) => {
     const payload = generateSalesforcePayload(sanitizedForm, order);
     console.log(payload);
 
+    const insertFormToDb = await insertFormData(c.env.DB, sanitizedForm);
+    console.log(insertFormToDb);
+    if (!insertFormToDb.success) {
+      throw new Error('Failed to insert form data into the database');
+    }
+    const { lastRowId } = insertFormToDb;
+    const insertOrderToDbSuccess = await insertOrder(
+      c.env.DB,
+      order,
+      lastRowId,
+      sanitizedForm.orderToken
+    );
+
+    if (!insertOrderToDbSuccess) {
+      throw new Error('Failed to insert Order data into the database');
+    }
     // send form data to salesforce api
     //await sendFormToSalesforce(sanitizedForm);
 
