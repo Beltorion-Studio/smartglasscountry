@@ -54,8 +54,8 @@ type Product = {
   size: number;
   totalPrice: number;
   unitPrice: number;
-  insurancePercentage: number;
-  shippingCost: number;
+  insurancePercentage?: number;
+  shippingCost?: number;
   unitOfMeasurement: string;
 };
 
@@ -75,8 +75,8 @@ type OrderData = {
   subTotal: number;
   discountPeriod: number;
   minOrderQuantity: number;
-  isNewOrder?: boolean;
-  isUsaOrCanada?: boolean;
+  isNewOrder: boolean;
+  isUsaOrCanada: boolean;
 };
 
 type DashboardData = {

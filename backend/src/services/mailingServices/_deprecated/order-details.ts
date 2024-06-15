@@ -1,3 +1,4 @@
+export const orderDetailsTemplate = `
 <!doctype html>
 <html lang="en">
   <head>
@@ -219,3 +220,44 @@
     </div>
   </body>
 </html>
+`;
+const template = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactional Email</title>
+    <style>
+        /* Reset styles for consistency */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        /* Responsive email styles */
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 600px; margin: auto; padding: 20px;">
+        <h1 style="text-align: center; color: #333;">Thank You for Your Interest!</h1>
+        <p style="text-align: justify;">
+            Dear Viktor,<br><br>
+            Thank you for your interest in our services. We appreciate your inquiry and look forward to assisting you.<br><br>
+            Please feel free to contact us if you have any questions or need further information.<br><br>
+            Best regards,<br>
+            beltorion.com
+        </p>
+        <p style="text-align: center; font-size: 0.8em; color: #999;">
+            This is a transactional email. You received this email because you expressed interest in our services.
+        </p>
+    </div>
+</body>
+</html>
+`;

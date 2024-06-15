@@ -1,7 +1,7 @@
 //import * as nodemailer from 'nodemailer';
-import sgMail from '@sendgrid/mail';
-const API_KEY = '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';
+//const API_KEY = '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';
 //const API_KEY = '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';
+const API_KEY = '188e1122f94d6edd36afe8fed8b38159-51356527-0cdbf9dc'; //mailGun API key
 async function sendEmail(to: string, subject: string, htmlContent: string) {
   console.log('sendEmail initialized');
 
@@ -51,33 +51,4 @@ async function sendEmail(to: string, subject: string, htmlContent: string) {
   }
 }
 
-async function sendEmailWithSendgrid(to: string, subject: string, message: string) {
-  console.log('sendEmailWithSendgrid initialized');
-  sgMail.setApiKey(API_KEY);
-
-  const msg = {
-    to: to,
-    from: 'viktor@beltorion.com',
-    subject: subject,
-    text: message,
-    html: `<strong>${message}</strong>`,
-  };
-
-  try {
-    console.log('Sending email...');
-    const [response] = await sgMail.send(msg);
-    console.log('Email sent successfully:', {
-      statusCode: response.statusCode,
-      headers: response.headers,
-    });
-  } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null) {
-      console.error('Error sending email:', error);
-      if ('response' in error) {
-        console.error('Error response body:', error.response.body);
-      }
-    }
-  }
-}
-
-export { sendEmail, sendEmailWithSendgrid };
+export { sendEmail };

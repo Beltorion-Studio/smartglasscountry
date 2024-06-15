@@ -1,3 +1,4 @@
+const orderDetailsTemplateHead = `
 <!doctype html>
 <html lang="en">
   <head>
@@ -23,85 +24,70 @@
       }
     </style>
   </head>
+`;
+const TemplateBodyOpen = `
   <body>
-    <div class="page-wrapper" style="padding: 50px; max-width: 800px">
-      <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
-        Review Your Smart Glass Order
-      </h1>
-      <div class="product-container" style="padding: 20px; border: 10px solid #f1f2f3">
-        <table class="table_component">
-          <thead class="table_head">
-            <tr class="table_row">
-              <th scope="col" colspan="6" class="table_header"><strong>Smart Glass </strong></th>
-            </tr>
-          </thead>
-          <tbody class="table_body">
-            <tr class="table_row">
-              <td class="table_cell">Width:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-            </tr>
-            <tr class="table_row">
-              <td class="table_cell">Height:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell">Quantity:</td>
-              <td class="table_cell">10 pcs</td>
-              <td class="table_cell"></td>
-            </tr>
-            <tr class="table_row">
-              <td class="table_cell">Size:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell"><strong>$100</strong></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-            </tr>
-          </tbody>
-        </table>
-        <div
-          class="spacer"
-          style="height: 20px; margin-bottom: 15px; width: 100%; border-bottom: 1px solid #f1f2f3"
-        ></div>
-        <table class="table_component">
-          <thead class="table_head">
-            <tr class="table_row">
-              <th scope="col" colspan="6" class="table_header"><strong>Smart Glass </strong></th>
-            </tr>
-          </thead>
-          <tbody class="table_body">
-            <tr class="table_row">
-              <td class="table_cell">Width:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-            </tr>
-            <tr class="table_row">
-              <td class="table_cell">Height:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell">Quantity:</td>
-              <td class="table_cell">10 pcs</td>
-              <td class="table_cell"></td>
-            </tr>
-            <tr class="table_row">
-              <td class="table_cell">Size:</td>
-              <td class="table_cell">0</td>
-              <td class="table_cell spacer-cell"></td>
-              <td class="table_cell"><strong>$100</strong></td>
-              <td class="table_cell"></td>
-              <td class="table_cell"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <div class="page-wrapper" style="padding: 50px; max-width: 800px">
+`;
 
-      <div
+const TemplateBodyClose = `
+</div>
+</body>
+`;
+const orderDetailsTemplateHeader = `
+  <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
+    Review Your {productType} Order
+  </h1>
+`;
+
+const productsContainerOpen = `
+      <div class="product-container" style="padding: 20px; border: 10px solid #f1f2f3">
+`;
+
+const productsContainerClose = `</div>`;
+
+const productsTable = `
+   <table class="table_component">
+          <thead class="table_head">
+            <tr class="table_row">
+              <th scope="col" colspan="6" class="table_header"><strong>{productType}</strong></th>
+            </tr>
+          </thead>
+          <tbody class="table_body">
+            <tr class="table_row">
+              <td class="table_cell">Width:</td>
+              <td class="table_cell">0</td>
+              <td class="table_cell spacer-cell"></td>
+              <td class="table_cell"></td>
+              <td class="table_cell"></td>
+              <td class="table_cell"></td>
+            </tr>
+            <tr class="table_row">
+              <td class="table_cell">Height:</td>
+              <td class="table_cell">0</td>
+              <td class="table_cell spacer-cell"></td>
+              <td class="table_cell">Quantity:</td>
+              <td class="table_cell">10 pcs</td>
+              <td class="table_cell"></td>
+            </tr>
+            <tr class="table_row">
+              <td class="table_cell">Size:</td>
+              <td class="table_cell">0</td>
+              <td class="table_cell spacer-cell"></td>
+              <td class="table_cell"><strong>$100</strong></td>
+              <td class="table_cell"></td>
+              <td class="table_cell"></td>
+            </tr>
+          </tbody>
+    </table>
+`;
+const divider = `
+  <div style="height: 20px; margin-bottom: 15px; width: 100%; border-bottom: 1px solid #f1f2f3">
+  </div>
+`;
+
+const orderDetailsTableCalculations = `
+<div
         style="
           padding: 20px;
           margin-top: 40px;
@@ -152,6 +138,5 @@
           </tr>
         </table>
       </div>
-    </div>
-  </body>
-</html>
+`;
+export const orderDetailsTemplate = ``;

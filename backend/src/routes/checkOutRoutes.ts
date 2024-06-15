@@ -119,4 +119,14 @@ checkOut.post('/', async (c) => {
   }
 });
 
+async function createStripeSession(stripeClient, body, coupon, orderToken) {
+  const session = await stripeClient.checkout.sessions.create({
+    // ... The rest of your session creation logic remains the same
+    // ...
+    success_url: `https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true`,
+    cancel_url: 'https://smartglass.webflow.io/smart-center/order-canceled',
+  });
+  return session;
+}
+
 export { checkOut };
