@@ -1,36 +1,39 @@
 import { Hono } from 'hono';
 import stripe from 'stripe';
 
-import { deleteSession } from '../services/session';
-import { Bindings } from '../types/types';
+import { getUserEmailAndNameByOrderToken } from '../services/D1DatabaseOperations';
+import { buildOrderDetailsTemplate } from '../services/mailingServices/emailTemplates/orderDetailsTemplate';
+import { sendEmail } from '../services/mailingServices/mailingService';
+import { deleteSession, getSession } from '../services/session';
+import { Bindings, OrderData } from '../types/types';
 
 const webhook = new Hono<{ Bindings: Bindings }>();
 
 webhook.post('/', async (c) => {
   const stripeClient = new stripe(c.env.STRIPE_CLIENT);
-  const stripeWebhookSecret = c.env.STRIPE_WEBHOOK_SECRET;
-  const stripeSignature = c.req.header('stripe-signature');
-  if (!stripeSignature) {
+  const webhookSecret = c.env.STRIPE_WEBHOOK_SECRET;
+  const webhookStripeSignatureHeader = c.req.header('stripe-signature');
+  if (!webhookStripeSignatureHeader) {
     console.error('No stripe signature');
     return c.json({ error: 'No stripe signature' }, { status: 400 });
   }
 
-  if (!stripeWebhookSecret) {
+  if (!webhookSecret) {
     console.error('No STRIPE_WEBHOOK_SECRET');
     throw new Error('No STRIPE_WEBHOOK_SECRET');
   }
 
   let event;
   try {
-    const rawBody = await c.req.text();
-    console.log('Raw Body:', rawBody);
-    console.log('Stripe Signature:', stripeSignature);
+    const webhookRawBody = await c.req.text();
+    //console.log('Stripe Signature:', webhookStripeSignatureHeader);
+    //console.log('Stripe webhookSecret:', webhookSecret);
 
     // Verify the event by signing secret
     event = await stripeClient.webhooks.constructEventAsync(
-      rawBody,
-      stripeSignature,
-      stripeWebhookSecret
+      webhookRawBody,
+      webhookStripeSignatureHeader,
+      webhookSecret
     );
   } catch (err) {
     if (err instanceof stripe.errors.StripeSignatureVerificationError) {
@@ -46,10 +49,15 @@ webhook.post('/', async (c) => {
       const session = event.data.object as stripe.Checkout.Session;
       const { metadata } = session;
       const orderToken = metadata ? metadata.orderToken : null;
-      console.log(orderToken);
       if (!orderToken) {
         console.error('No order token');
         throw new Error('No order token');
+      }
+      const order = (await getSession(c, orderToken as string)) as OrderData;
+      if (metadata?.isDeposit === 'true') {
+        await sendOrderDetailsEmail(order, orderToken, true, c.env.DB);
+      } else {
+        await sendOrderDetailsEmail(order, orderToken, false, c.env.DB);
       }
 
       await deleteSession(c, orderToken);
@@ -67,5 +75,37 @@ webhook.get('/', async (c) => {
 
   return c.text('stripe webhook route');
 });
+async function sendOrderDetailsEmail(
+  order: OrderData,
+  orderToken: string,
+  isDeposit: boolean,
+  DB: D1Database
+): Promise<void> {
+  const userInfo = await getUserEmailAndNameByOrderToken(DB, orderToken);
+  if (
+    !userInfo ||
+    !userInfo.success ||
+    !userInfo.email ||
+    !userInfo.userName ||
+    !userInfo.orderId
+  ) {
+    throw new Error('Failed to get user info');
+  }
 
+  const senderEmail: string = 'viktor@email.beltorion.com';
+  const recipientEmail: string = userInfo.email;
+  const customerName: string = userInfo.userName;
+  const formattedOrderId: string = formatOrderId(userInfo.orderId);
+  const subjectText: string = isDeposit ? 'deposit' : 'order';
+  const html = buildOrderDetailsTemplate(order, customerName, formattedOrderId, isDeposit);
+  const subject: string = `Hello ${customerName}, your ${subjectText} has been processed`;
+  const response = await sendEmail(senderEmail, recipientEmail, subject, html);
+  if (!response) {
+    throw new Error('Failed to send email');
+  }
+
+  function formatOrderId(orderId: number) {
+    return orderId.toString().padStart(7, '0');
+  }
+}
 export default webhook;

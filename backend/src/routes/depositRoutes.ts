@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import stripe from 'stripe';
 
 import { CheckoutServices } from '../services/CheckoutServices';
-import { updateOrder } from '../services/db';
+import { updateOrder } from '../services/D1DatabaseOperations';
 import { getSession } from '../services/session';
 import { Bindings, OrderData } from '../types/types';
 
@@ -42,6 +42,7 @@ deposit.post('/', async (c) => {
       mode: 'payment',
       metadata: {
         orderToken,
+        isDeposit: 'true',
       },
       success_url: `https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true`,
       cancel_url: 'https://smartglass.webflow.io/smart-center/order-canceled',

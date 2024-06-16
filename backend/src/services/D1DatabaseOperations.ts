@@ -5,18 +5,18 @@ async function insertOrder(
   DB: D1Database,
   OrderData: OrderData,
   userId: number,
-  orderId: string
+  orderToken: string
 ): Promise<boolean> {
   const insertOrderQuery = `
       INSERT INTO orders (
-        order_id, user_id, discount, unit_of_measurement, total_regular_price, discount_amount, total_final_price, 
+        order_token, user_id, discount, unit_of_measurement, total_regular_price, discount_amount, total_final_price, 
         quoted_currency, crating_cost, insurance_cost, tax, shipping_cost, sub_total, discount_period, 
         min_order_quantity, is_new_order, is_usa_or_canada
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
   const orderValues = [
-    orderId,
+    orderToken,
     userId,
     OrderData.discount,
     OrderData.unitOfMeasurement,
@@ -42,14 +42,14 @@ async function insertOrder(
 
     const insertOrderProductQuery = `
         INSERT INTO order_products (
-          order_id, width, height, quantity, product_type, square_footage, square_meterage, 
+          order_token, width, height, quantity, product_type, square_footage, square_meterage, 
           product_size, total_price, unit_price, insurance_percentage, shipping_cost, unit_of_measurement
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `;
 
     for (const product of OrderData.products) {
       const productValues = [
-        orderId,
+        orderToken,
         product.width,
         product.height,
         product.quantity,
@@ -79,7 +79,7 @@ async function insertOrder(
 async function updateOrder(
   DB: D1Database,
   OrderData: OrderData,
-  orderId: string
+  orderToken: string
 ): Promise<boolean> {
   const updateOrderQuery = `
       UPDATE orders
@@ -87,7 +87,7 @@ async function updateOrder(
           total_final_price = ?, quoted_currency = ?, crating_cost = ?, insurance_cost = ?, tax = ?, 
           shipping_cost = ?, sub_total = ?, discount_period = ?, min_order_quantity = ?, is_new_order = ?, 
           is_usa_or_canada = ?
-      WHERE order_id = ?;
+      WHERE order_token = ?;
     `;
 
   const orderValues = [
@@ -106,7 +106,7 @@ async function updateOrder(
     OrderData.minOrderQuantity,
     true, // Assuming this is a new order
     true, // Assuming the order is for USA or Canada
-    orderId,
+    orderToken,
   ];
 
   try {
@@ -116,22 +116,22 @@ async function updateOrder(
 
     // Delete existing products related to the order
     const deleteOrderProductsQuery = `
-        DELETE FROM order_products WHERE order_id = ?;
+        DELETE FROM order_products WHERE order_token = ?;
       `;
 
-    await DB.prepare(deleteOrderProductsQuery).bind(orderId).run();
+    await DB.prepare(deleteOrderProductsQuery).bind(orderToken).run();
 
     // Insert updated products
     const insertOrderProductQuery = `
         INSERT INTO order_products (
-          order_id, width, height, quantity, product_type, square_footage, square_meterage, 
+          order_token, width, height, quantity, product_type, square_footage, square_meterage, 
           product_size, total_price, unit_price, insurance_percentage, shipping_cost, unit_of_measurement
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `;
 
     for (const product of OrderData.products) {
       const productValues = [
-        orderId,
+        orderToken,
         product.width,
         product.height,
         product.quantity,
@@ -186,5 +186,28 @@ async function insertFormData(
   return { success: results.success, lastRowId: results.meta.last_row_id };
 }
 
-export { insertFormData, insertOrder, updateOrder };
+async function getUserEmailAndNameByOrderToken(DB: D1Database, orderToken: string) {
+  const selectQuery = `
+  SELECT u.user_name, u.email, o.order_id
+  FROM users u
+  JOIN orders o ON u.order_token = o.order_token
+  WHERE o.order_token = ?
+`;
+
+  const user = await DB.prepare(selectQuery).bind(orderToken).all();
+
+  if (!user || user.results.length === 0) {
+    console.log('No user found for the given order token.');
+    return { success: false, userName: null, email: null, orderId: null };
+  }
+
+  // Assuming order_token is unique and can only correspond to one user
+  const userName = user.results[0].user_name as string;
+  const email = user.results[0].email as string;
+  const orderId = user.results[0].order_id as number;
+  console.log('User found: ', user);
+  return { success: true, userName, email, orderId };
+}
+
+export { getUserEmailAndNameByOrderToken, insertFormData, insertOrder, updateOrder };
 // You can add more functions for different queries here

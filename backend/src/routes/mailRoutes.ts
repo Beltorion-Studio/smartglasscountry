@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { Bindings } from 'hono/types';
 
 import { buildOrderDetailsTemplate } from '../services/mailingServices/emailTemplates/orderDetailsTemplate';
-import { initailazeMailingService } from '../services/mailingServices/mailingService';
+import { sendEmail } from '../services/mailingServices/mailingService';
 
 const mail = new Hono<{ Bindings: Bindings }>();
 const API_KEY = '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';
@@ -96,7 +96,7 @@ mail.get('/', async (c) => {
   const orderNumber: string = '123456789';
   const html = buildOrderDetailsTemplate(orderDetails, customerName, orderNumber);
   try {
-    const response = await initailazeMailingService(senderEmail, recipientEmail, subject, html);
+    const response = await sendEmail(senderEmail, recipientEmail, subject, html);
     console.log(response);
     if (response) {
       return c.text('Mail sent successfully! Status code: 202');

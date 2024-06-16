@@ -3,7 +3,7 @@ import { Bindings } from 'hono/types';
 
 import { authMiddleware } from '../middleware/jwtMiddleware';
 import { CryptoService } from '../services/CryptoService';
-import { dbOperations } from '../services/DbOperations';
+import { dbOperations } from '../services/kvStorageOperations';
 import { DashboardData } from '../types/types';
 //const secretKey = 'your-secret-key-for-encryption';
 const cryptoService = new CryptoService();

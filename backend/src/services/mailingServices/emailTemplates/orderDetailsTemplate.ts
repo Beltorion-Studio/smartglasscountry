@@ -56,6 +56,23 @@ const orderDetailsTemplateHeader = `
     Review Your [productType] Order
   </h1>
 `;
+const depositOrderTemplateHeader = `
+  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">
+    Hi [customerName],<br /><br />
+    Thank you for your recent deposit from Smart Glass Country! Your deposit for the order #[orderNumber] has
+    been processed and your discount is secured for [discountPeriod] days. It will expire on [discountExpiryDate] so please proceed the remaining <strong>$[remainingBalanceAfterDeposit]</strong> until that date. If you have any questions, feel free to contact us at
+    <a href="mailto:info@smartglasscountry.com" style="color: #007bff; text-decoration: none"
+        >info@smartglasscountry.com</a
+    >.<br /><br />
+    Thanks again for shopping with us!<br /><br />
+    Best regards,<br />
+    Dmitri<br />
+    Smart Glass Country
+  </p>
+  <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
+    Review Your [productType] Order
+  </h1>
+`;
 
 const productsContainerOpen = `
       <div class="product-container" style="padding: 20px; border: 10px solid #f1f2f3">
@@ -127,7 +144,7 @@ function createProductRows(products: Product[], unitOfMeasurement: string): stri
           <table class="table_component">
             <thead class="table_head">
               <tr class="table_row">
-                <th scope="col" colspan="6" class="table_header"><strong>${product.productType}</strong></th>
+                <th scope="col" colspan="6" class="table_header"><strong>${formatProductName(product.productType)}</strong></th>
               </tr>
             </thead>
             <tbody class="table_body">
@@ -153,7 +170,7 @@ function createProductRows(products: Product[], unitOfMeasurement: string): stri
                   product.unitOfMeasurement === 'inches' ? 'SQFT' : 'SQMT'
                 }</td>
                 <td class="table_cell spacer-cell"></td>
-                <td class="table_cell"><strong>${product.unitPrice}</strong></td>
+                <td class="table_cell"><strong>$${product.totalPrice.toFixed(2)}</strong></td>
                 <td class="table_cell"></td>
                 <td class="table_cell"></td>
               </tr>
@@ -168,7 +185,8 @@ function createProductRows(products: Product[], unitOfMeasurement: string): stri
 function buildOrderDetailsTemplate(
   orderDetails: OrderData,
   customerName: string,
-  orderNumber: string
+  orderNumber: string,
+  isDeposit: boolean
 ): string {
   const {
     productType,
@@ -182,32 +200,87 @@ function buildOrderDetailsTemplate(
     totalFinalPrice,
     discountAmount,
     unitOfMeasurement,
+    discountPeriod, // Assuming this is part of orderDetails
   } = orderDetails;
 
   const productRows = createProductRows(products, unitOfMeasurement);
 
+  // Select the appropriate template header based on isDeposit
+  const templateHeader = isDeposit ? depositOrderTemplateHeader : orderDetailsTemplateHeader;
+
+  // Calculate discount expiry date if isDeposit is true
+  let discountExpiryDate = '';
+  if (isDeposit) {
+    discountExpiryDate = setExpiryDate(discountPeriod, discountExpiryDate);
+  }
+
   // Assemble the template
-  return `
+  let template = `
         ${orderDetailsTemplateHead}
         ${templateBodyOpen}
-        ${orderDetailsTemplateHeader
-          .replace('[productType]', productType)
+        ${templateHeader
+          .replace('[productType]', formatProductName(productType))
           .replace('[customerName]', customerName)
           .replace('[orderNumber]', orderNumber)}
         ${productsContainerOpen}
             ${productRows}   
         ${productsContainerClose}
         ${orderDetailsTableCalculations
-          .replace('[totalRegularPrice]', `$${totalRegularPrice}`)
-          .replace('[shippingCost]', `$${shippingCost}`)
-          .replace('[cratingCost]', `$${cratingCost}`)
-          .replace('[insuranceCost]', `$${insuranceCost}`)
-          .replace('[subTotal]', `$${subTotal}`)
-          .replace('[discount]', `$${discount}`)
-          .replace('[discountAmount]', `-$${discountAmount}`)
-          .replace('[totalFinalPrice]', `$${totalFinalPrice}`)
+          .replace('[totalRegularPrice]', `$${totalRegularPrice.toFixed(2)}`)
+          .replace('[shippingCost]', `$${shippingCost.toFixed(2)}`)
+          .replace('[cratingCost]', `$${cratingCost.toFixed(2)}`)
+          .replace('[insuranceCost]', `$${insuranceCost.toFixed(2)}`)
+          .replace('[subTotal]', `$${subTotal.toFixed(2)}`)
+          .replace('[discount]', `${discount}`)
+          .replace('[discountAmount]', `-$${discountAmount.toFixed(2)}`)
+          .replace('[totalFinalPrice]', `$${totalFinalPrice.toFixed(2)}`)
           .replace('[unitOfMeasurement]', `${unitOfMeasurement}`)}
         ${templateBodyClose}
       `;
+
+  // Replace additional values if isDeposit is true
+  if (isDeposit) {
+    template = template
+      .replace('[discountPeriod]', `${discountPeriod} days`)
+      .replace('[discountExpiryDate]', discountExpiryDate)
+      .replace(
+        '[remainingBalanceAfterDeposit]',
+        `${calculateRemainingBalanceAfterDeposit(discountAmount, totalFinalPrice)}`
+      );
+  }
+
+  return template;
+}
+
+function setExpiryDate(discountPeriod: number, discountExpiryDate: string) {
+  const expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate() + discountPeriod);
+
+  // Format the date as YYYY-MM-DD HH:MM
+  const year = expiryDate.getFullYear();
+  const month = String(expiryDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(expiryDate.getDate()).padStart(2, '0');
+  const hours = String(expiryDate.getHours()).padStart(2, '0');
+  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
+
+  discountExpiryDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+  return discountExpiryDate;
+}
+
+function calculateRemainingBalanceAfterDeposit(
+  depositAmount: number,
+  totalFinalPrice: number
+): string {
+  return (totalFinalPrice - depositAmount).toFixed(2);
+}
+
+function formatProductName(productType: string): string {
+  if (productType === 'smartGlass') {
+    return 'Smart Glass';
+  }
+  if (productType === 'smartFilm') {
+    return 'Smart Film';
+  }
+  return 'IGU';
 }
 export { buildOrderDetailsTemplate };

@@ -1,7 +1,8 @@
 DROP TABLE IF EXISTS orders;
 
 CREATE TABLE IF NOT EXISTS  orders (
-  order_id VARCHAR(255) PRIMARY KEY,
+  order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_token VARCHAR(255) NOT NULL UNIQUE,
   user_id INTEGER NOT NULL REFERENCES users (user_id),
   discount DECIMAL(10, 2),
   unit_of_measurement VARCHAR(10),

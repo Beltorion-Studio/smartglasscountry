@@ -1,6 +1,6 @@
 import { sendEmailWithResend } from './sendMailWithResend';
 
-async function initailazeMailingService(
+async function sendEmail(
   senderEmail: string,
   recipientEmail: string,
   subject: string,
@@ -14,4 +14,4 @@ async function initailazeMailingService(
     console.error('Error initializing mailing service:', error);
   }
 }
-export { initailazeMailingService };
+export { sendEmail };

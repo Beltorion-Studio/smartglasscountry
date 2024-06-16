@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import stripe from 'stripe';
 
 import { CheckoutServices } from '../services/CheckoutServices';
-import { updateOrder } from '../services/db';
+import { updateOrder } from '../services/D1DatabaseOperations';
 import { getSession } from '../services/session';
 import { Bindings, OrderData } from '../types/types';
 
@@ -29,6 +29,7 @@ checkOut.post('/', async (c) => {
   if (!updateOrderInDb) {
     throw new Error('Failed to insert form data into the database');
   }
+
   console.log(order);
   const body: {
     products: Array<{
@@ -108,6 +109,7 @@ checkOut.post('/', async (c) => {
       discounts: coupon ? [{ coupon: coupon.id }] : [],
       metadata: {
         orderToken,
+        isDeposit: 'false',
       },
       success_url: `https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true`,
       cancel_url: 'https://smartglass.webflow.io/smart-center/order-canceled',
@@ -118,15 +120,5 @@ checkOut.post('/', async (c) => {
     return c.json({ error: 'Unable to create Stripe session' }, { status: 500 });
   }
 });
-
-async function createStripeSession(stripeClient, body, coupon, orderToken) {
-  const session = await stripeClient.checkout.sessions.create({
-    // ... The rest of your session creation logic remains the same
-    // ...
-    success_url: `https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true`,
-    cancel_url: 'https://smartglass.webflow.io/smart-center/order-canceled',
-  });
-  return session;
-}
 
 export { checkOut };

@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
-import { updateOrder } from '../services/db';
-import { dbOperations } from '../services/DbOperations';
+import { updateOrder } from '../services/D1DatabaseOperations';
+import { dbOperations } from '../services/kvStorageOperations';
 import { getSession, setSession } from '../services/session';
 import {
   getCratingCost,

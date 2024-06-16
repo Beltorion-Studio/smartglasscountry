@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS order_products;
 
 CREATE TABLE IF NOT EXISTS order_products (
-  order_product_id SERIAL PRIMARY KEY,
-  order_id VARCHAR(255) NOT NULL REFERENCES orders (order_id),
+  order_product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_token VARCHAR(255) NOT NULL REFERENCES orders (order_token),
   width DECIMAL(10, 2) NOT NULL,
   height DECIMAL(10, 2) NOT NULL,
   quantity INTEGER NOT NULL,

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { Bindings } from 'hono/types';
 
-import { dbOperations } from '../services/DbOperations';
+import { dbOperations } from '../services/kvStorageOperations';
 
 const settings = new Hono<{ Bindings: Bindings }>();
 
