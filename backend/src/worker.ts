@@ -43,16 +43,3 @@ app.route('/mail', mail);
 app.route('/db', db);
 
 export default app;
-
-/*
-async function scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
-  console.log('Hello from your Scheduled Function!');
-  return new Response('Hello from your Scheduled Function!');
-}
-async function handleScheduledEvent(event: ScheduledEvent, env: Bindings['env']) {
-  console.log('Hello from your Scheduled Function!');
-
-  //const expiringOrders = await queryExpiringOrders(env.D1_DATABASE);
-  //await notifyCustomers(expiringOrders, env.NOTIFICATION_SERVICE);
-}
-*/

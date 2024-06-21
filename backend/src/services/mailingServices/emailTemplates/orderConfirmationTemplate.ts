@@ -1,4 +1,5 @@
 import { OrderData, Product } from '../../../types/types';
+import { calculateRemainingBalanceAfterDeposit } from '../templateUtils';
 const orderDetailsTemplateHead = `
 <!doctype html>
 <html lang="en">
@@ -32,11 +33,42 @@ const templateBodyOpen = `
   <div class="page-wrapper" style="padding: 50px; max-width: 800px">
 `;
 
+const templateBodyClose = `
+</div>
+</body>
+</html>
+`;
+
 const orderDetailsTemplateHeader = `
-  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6 marging-bottom: 10px">
+  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">
     Hi [customerName],<br /><br />
-    We noticed that you have some exciting items in your shopping cart at Smart Glass Country and wanted to remind you before you forget about them.
-Here's a quick summary of what's waiting for you:   
+    Thank you for your recent purchase from Smart Glass Country! Your order #[orderNumber] has
+    been processed and is on its way. If you have any
+    questions, feel free to contact us at
+    <a href="mailto:info@smartglasscountry.com" style="color: #007bff; text-decoration: none"
+        >info@smartglasscountry.com</a
+    >.<br /><br />
+    Thanks again for shopping with us!<br /><br />
+    Best regards,<br />
+    Dmitri<br />
+    Smart Glass Country
+  </p>
+  <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
+    Review Your [productType] Order
+  </h1>
+`;
+const depositOrderTemplateHeader = `
+  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">
+    Hi [customerName],<br /><br />
+    Thank you for your recent deposit from Smart Glass Country! Your deposit for the order #[orderNumber] has
+    been processed and your discount is secured for [discountPeriod] days. It will expire on [discountExpiryDate] so please proceed the remaining <strong>$[remainingBalanceAfterDeposit]</strong> until that date. If you have any questions, feel free to contact us at
+    <a href="mailto:info@smartglasscountry.com" style="color: #007bff; text-decoration: none"
+        >info@smartglasscountry.com</a
+    >.<br /><br />
+    Thanks again for shopping with us!<br /><br />
+    Best regards,<br />
+    Dmitri<br />
+    Smart Glass Country
   </p>
   <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
     Review Your [productType] Order
@@ -106,22 +138,6 @@ const orderDetailsTableCalculations = `
       </div>
 `;
 
-const endingText = `
-  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">   
-    Should you have any questions or need assistance, don't hesitate to reach us out at
-    <a href="mailto:info@smartglasscountry.com" style="color: #007bff; text-decoration: none"
-        >info@smartglasscountry.com</a
-    >. We're here to help you customize your order to perfection.<br /><br />
-    Thank you for choosing Smart Glass Coutnry. We look forward to creating your custom smart glass and smart film solutions.
-  </p>
-`;
-
-const templateBodyClose = `
-</div>
-</body>
-</html>
-`;
-
 function createProductRows(products: Product[], unitOfMeasurement: string): string {
   return products
     .map(
@@ -167,7 +183,12 @@ function createProductRows(products: Product[], unitOfMeasurement: string): stri
     .join('');
 }
 
-function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string): string {
+function buildOrderConfirmationTemplate(
+  orderDetails: OrderData,
+  customerName: string,
+  orderNumber: string,
+  isDeposit: boolean
+): string {
   const {
     productType,
     products,
@@ -180,19 +201,28 @@ function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string
     totalFinalPrice,
     discountAmount,
     unitOfMeasurement,
+    discountPeriod, // Assuming this is part of orderDetails
   } = orderDetails;
 
   const productRows = createProductRows(products, unitOfMeasurement);
 
   // Select the appropriate template header based on isDeposit
+  const templateHeader = isDeposit ? depositOrderTemplateHeader : orderDetailsTemplateHeader;
+
+  // Calculate discount expiry date if isDeposit is true
+  let discountExpiryDate = '';
+  if (isDeposit) {
+    discountExpiryDate = setExpiryDate(discountPeriod, discountExpiryDate);
+  }
 
   // Assemble the template
-  const template = `
+  let template = `
         ${orderDetailsTemplateHead}
         ${templateBodyOpen}
-        ${orderDetailsTemplateHeader
+        ${templateHeader
           .replace('[productType]', formatProductName(productType))
-          .replace('[customerName]', customerName)}
+          .replace('[customerName]', customerName)
+          .replace('[orderNumber]', orderNumber)}
         ${productsContainerOpen}
             ${productRows}   
         ${productsContainerClose}
@@ -206,13 +236,36 @@ function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string
           .replace('[discountAmount]', `-$${discountAmount.toFixed(2)}`)
           .replace('[totalFinalPrice]', `$${totalFinalPrice.toFixed(2)}`)
           .replace('[unitOfMeasurement]', `${unitOfMeasurement}`)}
-          ${endingText}
         ${templateBodyClose}
       `;
 
   // Replace additional values if isDeposit is true
+  if (isDeposit) {
+    template = template
+      .replace('[discountPeriod]', `${discountPeriod} days`)
+      .replace('[discountExpiryDate]', discountExpiryDate)
+      .replace(
+        '[remainingBalanceAfterDeposit]',
+        `${calculateRemainingBalanceAfterDeposit(500, totalFinalPrice)}`
+      );
+  }
 
   return template;
+}
+
+function setExpiryDate(discountPeriod: number, discountExpiryDate: string) {
+  const expiryDate = new Date();
+  expiryDate.setDate(expiryDate.getDate() + discountPeriod);
+
+  // Format the date as YYYY-MM-DD HH:MM
+  const year = expiryDate.getFullYear();
+  const month = String(expiryDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(expiryDate.getDate()).padStart(2, '0');
+  const hours = String(expiryDate.getHours()).padStart(2, '0');
+  const minutes = String(expiryDate.getMinutes()).padStart(2, '0');
+
+  discountExpiryDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+  return discountExpiryDate;
 }
 
 function formatProductName(productType: string): string {
@@ -224,4 +277,4 @@ function formatProductName(productType: string): string {
   }
   return 'IGU';
 }
-export { buildOrderDetailsTemplate };
+export { buildOrderConfirmationTemplate };

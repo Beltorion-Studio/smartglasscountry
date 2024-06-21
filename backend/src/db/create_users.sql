@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
   role_in_project VARCHAR(50) NOT NULL,
   user_location VARCHAR(50) NOT NULL,
   country VARCHAR(50) NOT NULL,
-  order_token VARCHAR(50) NOT NULL UNIQUE,
   state_or_province VARCHAR(50) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -24,7 +24,7 @@ deposit.post('/', async (c) => {
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
-  const updateOrderInDb = await updateOrder(c.env.DB, order, orderToken);
+  const updateOrderInDb = await updateOrder(c.env.DB, order, orderToken, true);
 
   if (!updateOrderInDb) {
     throw new Error('Failed to insert form data into the database');

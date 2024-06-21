@@ -139,3 +139,7 @@ async function salesforce({ env }: { env: Bindings['env'] }) {
 */
 
 export { form };
+  function sendOrderDetailsEmail(order: OrderData, orderToken: any, arg2: boolean, DB: D1Database) {
+    throw new Error('Function not implemented.')
+  }
+

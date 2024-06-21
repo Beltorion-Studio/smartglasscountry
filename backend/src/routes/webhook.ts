@@ -1,8 +1,11 @@
 import { Hono } from 'hono';
 import stripe from 'stripe';
 
-import { getUserEmailAndNameByOrderToken } from '../services/D1DatabaseOperations';
-import { buildOrderDetailsTemplate } from '../services/mailingServices/emailTemplates/orderDetailsTemplate';
+import {
+  getUserEmailAndNameByOrderToken,
+  insertDepositOrder,
+} from '../services/D1DatabaseOperations';
+import { buildOrderConfirmationTemplate } from '../services/mailingServices/emailTemplates/orderConfirmationTemplate';
 import { sendEmail } from '../services/mailingServices/mailingService';
 import { deleteSession, getSession } from '../services/session';
 import { Bindings, OrderData } from '../types/types';
@@ -56,6 +59,10 @@ webhook.post('/', async (c) => {
       const order = (await getSession(c, orderToken as string)) as OrderData;
       if (metadata?.isDeposit === 'true') {
         await sendOrderDetailsEmail(order, orderToken, true, c.env.DB);
+        const insertDepositOrderToDB = await insertDepositOrder(c.env.DB, order, orderToken);
+        if (!insertDepositOrderToDB) {
+          throw new Error('Failed to insert Deposit order data into the database');
+        }
       } else {
         await sendOrderDetailsEmail(order, orderToken, false, c.env.DB);
       }
@@ -97,7 +104,7 @@ async function sendOrderDetailsEmail(
   const customerName: string = userInfo.userName;
   const formattedOrderId: string = formatOrderId(userInfo.orderId);
   const subjectText: string = isDeposit ? 'deposit' : 'order';
-  const html = buildOrderDetailsTemplate(order, customerName, formattedOrderId, isDeposit);
+  const html = buildOrderConfirmationTemplate(order, customerName, formattedOrderId, isDeposit);
   const subject: string = `Hello ${customerName}, your ${subjectText} has been processed`;
   const response = await sendEmail(senderEmail, recipientEmail, subject, html);
   if (!response) {

@@ -93,8 +93,8 @@ mail.get('/', async (c) => {
   const recipientEmail: string = 'viktor.gazsi@gmail.com';
   const subject: string = 'Hello Viktor';
   const customerName: string = 'Viktor';
-  const orderNumber: string = '123456789';
-  const html = buildOrderDetailsTemplate(orderDetails, customerName, orderNumber);
+  //const orderNumber: string = '123456789';
+  const html = buildOrderDetailsTemplate(orderDetails, customerName);
   try {
     const response = await sendEmail(senderEmail, recipientEmail, subject, html);
     console.log(response);

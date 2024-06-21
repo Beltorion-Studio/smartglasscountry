@@ -2,8 +2,10 @@ import { Hono } from 'hono';
 
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
-import { updateOrder } from '../services/D1DatabaseOperations';
+import { getUserEmailAndNameByOrderToken } from '../services/D1DatabaseOperations';
 import { dbOperations } from '../services/kvStorageOperations';
+import { buildOrderDetailsTemplate } from '../services/mailingServices/emailTemplates/orderDetailsTemplate';
+import { sendEmail } from '../services/mailingServices/mailingService';
 import { getSession, setSession } from '../services/session';
 import {
   getCratingCost,
@@ -13,7 +15,7 @@ import {
   getShippingCost,
   getUnitPrice,
 } from '../services/utils';
-import { Bindings, OrderFormData } from '../types/types';
+import { Bindings, OrderData, OrderFormData } from '../types/types';
 import { DashboardData } from '../types/types';
 const order = new Hono<{ Bindings: Bindings }>();
 
@@ -21,7 +23,7 @@ order.post('/', async (c) => {
   const orderData: OrderFormData = await c.req.json();
   let orderToken: string | undefined = c.req.query('orderToken');
   console.log(orderData);
-  const { unitOfMeasurement, productType, products, isNewOrder } = orderData;
+  const { unitOfMeasurement, productType, products } = orderData;
   const dashboardData = (await dbOperations.getData(
     c.env.DASHBOARD_SETTINGS as KVNamespace,
     'dashboard'
@@ -86,6 +88,16 @@ order.get('/', async (c) => {
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
+  const url = c.req.raw.cf?.hostMetadata;
+  //const { caller } = c.req.header;
+
+  if (!url) {
+    return c.json({ error: 'referer not found' }, { status: 400 });
+  }
+  console.log('url:', url);
+
+  await sendOrderDetailsEmail(order, orderToken, c.env.DB);
+
   // console.log(order);
   return c.json(order);
 });
@@ -95,4 +107,31 @@ function generateUniqueToken() {
   return token;
 }
 
+async function sendOrderDetailsEmail(
+  order: OrderData,
+  orderToken: string,
+  DB: D1Database
+): Promise<void> {
+  const userInfo = await getUserEmailAndNameByOrderToken(DB, orderToken);
+  if (
+    !userInfo ||
+    !userInfo.success ||
+    !userInfo.email ||
+    !userInfo.userName ||
+    !userInfo.orderId
+  ) {
+    throw new Error('Failed to get user info');
+  }
+
+  const senderEmail: string = 'viktor@email.beltorion.com';
+  const recipientEmail: string = userInfo.email;
+  const customerName: string = userInfo.userName;
+
+  const html = buildOrderDetailsTemplate(order, customerName);
+  const subject: string = `Hello ${customerName}, your have some items in your shopping cart.`;
+  const response = await sendEmail(senderEmail, recipientEmail, subject, html);
+  if (!response) {
+    throw new Error('Failed to send email');
+  }
+}
 export { order };

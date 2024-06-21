@@ -1,5 +1,5 @@
 name = "backend"
-main = "src/index.ts"
+main = "index.ts"
 compatibility_date = "2023-12-01"
 node_compat = true
 
@@ -18,8 +18,9 @@ database_id = "9bc46ce0-5195-4d57-9ef8-9cabb9455bb6"
 
 [triggers]
 # Schedule cron triggers:
-# - At every 1rd minute
-crons = ["0 */12 * * *"]
+# - At every 6th hour
+crons = ["* */6 * * *"]
+# crons = ["0 */12 * * *"]
 
 
 #compatibility_flags = [ "nodejs_compat" ]

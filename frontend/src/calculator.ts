@@ -136,6 +136,7 @@ async function fetchOrder(orderToken: string): Promise<OrderData | {}> {
   const orderService = new ApiServices(globalSettings.orderUrl);
   const params = {
     orderToken: orderToken,
+    pageIdentifier: 'calculator',
   };
   try {
     const responseData: OrderData | null = await orderService.fetchDataWithParams(params);
