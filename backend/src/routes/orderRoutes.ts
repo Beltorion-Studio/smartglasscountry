@@ -6,6 +6,7 @@ import { getUserEmailAndNameByOrderToken } from '../services/D1DatabaseOperation
 import { dbOperations } from '../services/kvStorageOperations';
 import { buildOrderDetailsTemplate } from '../services/mailingServices/emailTemplates/orderDetailsTemplate';
 import { sendEmail } from '../services/mailingServices/mailingService';
+import sanitizeData from '../services/sanitizeData';
 import { getSession, setSession } from '../services/session';
 import {
   getCratingCost,
@@ -22,8 +23,9 @@ const order = new Hono<{ Bindings: Bindings }>();
 order.post('/', async (c) => {
   const orderData: OrderFormData = await c.req.json();
   let orderToken: string | undefined = c.req.query('orderToken');
-  console.log(orderData);
-  const { unitOfMeasurement, productType, products } = orderData;
+  const sanitizedOrderData = sanitizeData(orderData) as OrderFormData;
+  console.log(sanitizedOrderData);
+  const { unitOfMeasurement, productType, products } = sanitizedOrderData;
   const dashboardData = (await dbOperations.getData(
     c.env.DASHBOARD_SETTINGS as KVNamespace,
     'dashboard'
@@ -81,6 +83,8 @@ order.post('/', async (c) => {
 
 order.get('/', async (c) => {
   const orderToken: string | undefined = c.req.query('orderToken');
+  const pageIdentifier: string | undefined = c.req.query('pageIdentifier');
+
   if (!orderToken) {
     return c.json({ error: 'Order token not provided' }, { status: 400 });
   }
@@ -88,15 +92,9 @@ order.get('/', async (c) => {
   if (!order) {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
-  const url = c.req.raw.cf?.hostMetadata;
-  //const { caller } = c.req.header;
-
-  if (!url) {
-    return c.json({ error: 'referer not found' }, { status: 400 });
+  if (pageIdentifier !== 'calculator') {
+    await sendOrderDetailsEmail(order, orderToken, c.env.DB);
   }
-  console.log('url:', url);
-
-  await sendOrderDetailsEmail(order, orderToken, c.env.DB);
 
   // console.log(order);
   return c.json(order);

@@ -33,10 +33,9 @@ const templateBodyOpen = `
 `;
 
 const orderDetailsTemplateHeader = `
-  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6 marging-bottom: 10px">
+  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">
     Hi [customerName],<br /><br />
-    We noticed that you have some exciting items in your shopping cart at Smart Glass Country and wanted to remind you before you forget about them.
-Here's a quick summary of what's waiting for you:   
+    We noticed that you have some exciting items in your shopping cart at Smart Glass Country and wanted to remind you before you forget about them. Here's a quick summary of what's waiting for you:   
   </p>
   <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
     Review Your [productType] Order

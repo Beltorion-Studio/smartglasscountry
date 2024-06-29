@@ -3,7 +3,7 @@ import { ZodError } from 'zod';
 
 import { formSchema } from '../models/contactFormSchema';
 import { insertFormData, insertOrder } from '../services/D1DatabaseOperations';
-import { sanitizeData } from '../services/sanitizeData';
+import sanitizeData from '../services/sanitizeData';
 import { getSession } from '../services/session';
 import { Bindings } from '../types/types';
 import { FormData, OrderData, Payload, Product } from '../types/types';
@@ -139,7 +139,6 @@ async function salesforce({ env }: { env: Bindings['env'] }) {
 */
 
 export { form };
-  function sendOrderDetailsEmail(order: OrderData, orderToken: any, arg2: boolean, DB: D1Database) {
-    throw new Error('Function not implemented.')
-  }
-
+function sendOrderDetailsEmail(order: OrderData, orderToken: any, arg2: boolean, DB: D1Database) {
+  throw new Error('Function not implemented.');
+}
