@@ -11,6 +11,8 @@ type Bindings = {
   STRIPE_WEBHOOK_SECRET: string;
   STRIPE_CLIENT: string;
   DB: D1Database;
+  ADMIN_PASSWORD: string;
+  ADMIN_EMAIL: string;
 };
 
 type FormData = z.infer<typeof formSchema>;

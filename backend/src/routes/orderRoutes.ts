@@ -121,7 +121,7 @@ async function sendOrderDetailsEmail(
     throw new Error('Failed to get user info');
   }
 
-  const senderEmail: string = 'viktor@email.beltorion.com';
+  const senderEmail: string = 'info@mail2.smartglasscountry.com';
   const recipientEmail: string = userInfo.email;
   const customerName: string = userInfo.userName;
 

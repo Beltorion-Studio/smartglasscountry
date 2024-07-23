@@ -1,7 +1,7 @@
-import { MiddlewareHandler } from 'hono';
+import { Context, MiddlewareHandler, Next } from 'hono';
 import { verify } from 'hono/jwt';
 
-export const authMiddleware: MiddlewareHandler = async (c, next) => {
+export const authMiddleware: MiddlewareHandler = async (c: Context, next: Next) => {
   // Extract the Authorization header
   console.log('Authorization');
 

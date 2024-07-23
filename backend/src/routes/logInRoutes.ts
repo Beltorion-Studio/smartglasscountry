@@ -1,25 +1,20 @@
 import { Hono } from 'hono';
 import { sign } from 'hono/jwt';
 
-//import { setCookie } from 'hono/cookie';
 import { CryptoService } from '../services/CryptoService';
+import { Bindings } from '../types/types';
 
-const logIn = new Hono();
-//const JWT_SECRET = 'secret';
-const ADMIN_EMAIL = 'admin@admin.com';
-const ADMIN_PASSWORD = 'admin';
+const logIn = new Hono<{ Bindings: Bindings }>();
 
 const cryptoService = new CryptoService();
 
 let hashedAdminPassword: string;
 
-(async () => {
-  hashedAdminPassword = await cryptoService.hashPassword(ADMIN_PASSWORD);
-})();
-
 logIn.post('/', async (c) => {
   try {
-    // Ensure hashedAdminPassword is ready
+    const { ADMIN_EMAIL } = c.env;
+    hashedAdminPassword = await cryptoService.hashPassword(c.env.ADMIN_PASSWORD);
+
     if (!hashedAdminPassword) {
       return c.text('Server not ready', 503);
     }
@@ -30,7 +25,6 @@ logIn.post('/', async (c) => {
       return c.text('Email and password are required', 400);
     }
     const incomingHashedPassword = await cryptoService.hashPassword(password);
-
     if (email === ADMIN_EMAIL && incomingHashedPassword === hashedAdminPassword) {
       const payload = {
         sub: email,
@@ -39,7 +33,6 @@ logIn.post('/', async (c) => {
       };
       const secret = 'mySecretKey';
       const token = await sign(payload, secret);
-      // setCookie(c, 'jwt', token, { maxAge: 86400, httpOnly: true });
       return c.json({ token });
     }
 

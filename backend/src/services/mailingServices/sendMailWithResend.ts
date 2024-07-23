@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
-const resend = new Resend('re_dYyTJH7o_G2gmpyuTjHZysFpRfBggyZnr');
-
+//const resend = new Resend('re_dYyTJH7o_G2gmpyuTjHZysFpRfBggyZnr');
+const resend = new Resend('re_Fd9HBa49_5AJ6MUnqP455CmZ4mhyaoyp3');
 async function sendEmailWithResend(
   SENDER_EMAIL: string,
   RECIPIENT_EMAIL: string,

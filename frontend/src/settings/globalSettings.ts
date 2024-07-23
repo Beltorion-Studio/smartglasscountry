@@ -1,4 +1,4 @@
-const apiBaseUrl = 'https://backend.beltorion.workers.dev/';
+const apiBaseUrl = 'https://backend.smartglasscountry.workers.dev/';
 //const apiBaseUrl = 'http://127.0.0.1:8787/';
 
 
@@ -12,4 +12,5 @@ export const globalSettings = {
     buySamples: apiBaseUrl + 'buy-samples',
     checkoutUrl: apiBaseUrl + 'checkout',
     depositUrl: apiBaseUrl + 'deposit',
+    stipePublishableKey: 'pk_test_51LaNDSEzrk9htKiVHor4MCzLesU68jCFJVSORF0TZLSgy1Vo47VETkZ9Q1IpWbyYzNAIWm40yh6ShKI5fLIuidU100cT1N6lzx'
 }

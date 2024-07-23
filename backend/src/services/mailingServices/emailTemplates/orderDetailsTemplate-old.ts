@@ -35,8 +35,7 @@ const templateBodyOpen = `
 const orderDetailsTemplateHeader = `
   <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">
     Hi [customerName],<br /><br />
-   Don’t miss the chance to save <strong>$[discountAmount]</strong> by completing your purchase today!<br /><br />
-   We noticed that you have some exciting items in your shopping cart at Smart Glass Country and wanted to remind you before you forget about them. Here's a quick summary of what's waiting for you:
+    We noticed that you have some exciting items in your shopping cart at Smart Glass Country and wanted to remind you before you forget about them. Here's a quick summary of what's waiting for you:   
   </p>
   <h1 style="font-size: 40px; font-family: Arial, Helvetica, sans-serif">
     Review Your [productType] Order
@@ -107,8 +106,7 @@ const orderDetailsTableCalculations = `
 `;
 
 const endingText = `
-  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6; margin-top: 20px"> 
-    The discount will remain valid for [discountPeriod] days!<br /><br />
+  <p style="font-family: Arial, sans-serif; font-size: 18px; color: #333; line-height: 1.6">   
     Should you have any questions or need assistance, don't hesitate to reach us out at
     <a href="mailto:info@smartglasscountry.com" style="color: #007bff; text-decoration: none"
         >info@smartglasscountry.com</a
@@ -181,7 +179,6 @@ function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string
     totalFinalPrice,
     discountAmount,
     unitOfMeasurement,
-    discountPeriod,
   } = orderDetails;
 
   const productRows = createProductRows(products, unitOfMeasurement);
@@ -194,9 +191,7 @@ function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string
         ${templateBodyOpen}
         ${orderDetailsTemplateHeader
           .replace('[productType]', formatProductName(productType))
-          .replace('[customerName]', customerName)
-          .replace('[discountAmount]', `${discountAmount.toFixed(2)}`)}
-          
+          .replace('[customerName]', customerName)}
         ${productsContainerOpen}
             ${productRows}   
         ${productsContainerClose}
@@ -210,7 +205,7 @@ function buildOrderDetailsTemplate(orderDetails: OrderData, customerName: string
           .replace('[discountAmount]', `-$${discountAmount.toFixed(2)}`)
           .replace('[totalFinalPrice]', `$${totalFinalPrice.toFixed(2)}`)
           .replace('[unitOfMeasurement]', `${unitOfMeasurement}`)}
-          ${endingText.replace('[discountPeriod]', `${discountPeriod}`)}
+          ${endingText}
         ${templateBodyClose}
       `;
 

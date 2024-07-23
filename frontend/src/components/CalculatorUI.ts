@@ -3,7 +3,7 @@ import { ErrorMessageUI } from './ErrorMessageUI';
 import { ApiServices } from 'src/services/ApiServices';
 import { globalSettings } from 'src/settings/globalSettings';
 import { getOrderToken, getUrlParams } from 'src/utils/utilities';
-import type { OrderData, UrlParams, OrderFormData } from 'src/settings/types';
+import type { UrlParams } from 'src/settings/types';
 
 type PanelData = {
   width: number;
@@ -72,7 +72,7 @@ export class CalculatorUI {
       console.log(panelsData);
       const newOrder = new Order(panelsData, unitOfMeasurement, productType, this.isNewOrder);
       const orderToken = getOrderToken() ?? undefined;
-console.log(orderToken);
+      console.log(orderToken);
       const responseData = await this.submitOrder(newOrder, orderToken);
       if (responseData.redirectUrl && responseData.orderToken) {
         sessionStorage.setItem('orderToken', responseData.orderToken);

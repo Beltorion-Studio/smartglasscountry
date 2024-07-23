@@ -165,9 +165,7 @@ async function createDepositOrder() {
 }
 
 async function redirectToStripeCheckout(sessionId: string) {
-  const stripe = Stripe(
-    'pk_test_51LuHdrHiSI5WqDkH5MnIYUVna1Qp3UqZIPX2zHYphVD4S4tYgX2MxGcxqcCaCpVsUA6vnSERwrCWC81bAJLRcQYW00MYEwaG1h'
-  );
+  const stripe = Stripe(globalSettings.stipePublishableKey as string);
   try {
     await stripe.redirectToCheckout({ sessionId });
   } catch (error) {

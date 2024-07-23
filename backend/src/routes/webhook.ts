@@ -29,8 +29,8 @@ webhook.post('/', async (c) => {
   let event;
   try {
     const webhookRawBody = await c.req.text();
-    //console.log('Stripe Signature:', webhookStripeSignatureHeader);
-    //console.log('Stripe webhookSecret:', webhookSecret);
+    console.log('Stripe Signature:', webhookStripeSignatureHeader);
+    console.log('Stripe webhookSecret:', webhookSecret);
 
     // Verify the event by signing secret
     event = await stripeClient.webhooks.constructEventAsync(
@@ -99,7 +99,7 @@ async function sendOrderDetailsEmail(
     throw new Error('Failed to get user info');
   }
 
-  const senderEmail: string = 'viktor@email.beltorion.com';
+  const senderEmail: string = 'info@mail2.smartglasscountry.com';
   const recipientEmail: string = userInfo.email;
   const customerName: string = userInfo.userName;
   const formattedOrderId: string = formatOrderId(userInfo.orderId);

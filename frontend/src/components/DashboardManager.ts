@@ -15,8 +15,7 @@ export class DashboardManager {
     this.setupSaveButtonListener();
     this.setupLogOutButtonListener();
     this.errorMessageUI = new ErrorMessageUI();
-    //this.apiService = new ApiServices(globalSettings.dasboardUrl);
-    this.apiService = new ApiServices('https://backend.beltorion.workers.dev/dashboard');
+    this.apiService = new ApiServices(globalSettings.dasboardUrl);
    // this.apiService = new ApiServices('http://127.0.0.1:8787/dashboard');
     this.initializeDashboardValues().catch(console.error);
   }
