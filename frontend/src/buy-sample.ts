@@ -1,5 +1,3 @@
-import { removeChat } from './utils/removeChat';
-import { ApiServices } from 'src/services/ApiServices';
 const loadingElement = document.querySelector("[bo-elements='page-loader']") as HTMLElement;
 const mainContentElement = document.querySelector('.page-content-wr') as HTMLElement;
 

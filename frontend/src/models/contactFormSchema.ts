@@ -1,13 +1,20 @@
 import { z } from 'zod';
+
 export const formSchema = z
   .object({
-    name: z.string().min(1),
-    email: z.string().email(),
+    name: z.string().min(1, { message: 'Name is required!' }),
+    email: z.string().email({ message: 'Invalid email address!' }),
     phone: z.string(),
-    projectType: z.string().refine((val) => val !== 'projectType'),
-    roleInProject: z.string().refine((val) => val !== 'roleInTheProject'),
-    location: z.string().refine((val) => val !== 'location'),
-    country: z.string().refine((val) => val !== 'country'),
+    projectType: z
+      .string()
+      .refine((val) => val !== 'projectType', { message: 'Please choose a project type!' }),
+    roleInProject: z.string().refine((val) => val !== 'roleInTheProject', {
+      message: 'Please choose a role in the project!',
+    }),
+    location: z
+      .string()
+      .refine((val) => val !== 'location', { message: 'Please choose a location!' }),
+    country: z.string().refine((val) => val !== 'country', { message: 'Please choose a country!' }),
     state: z.string().optional(),
   })
   .refine(
@@ -24,6 +31,7 @@ export const formSchema = z
       return true;
     },
     {
+      message: 'State is required for USA and Canada and cannot be "State/Province"',
       path: ['state'],
     }
   );

@@ -68,7 +68,6 @@ order.post('/', async (c) => {
     orderToken = generateUniqueToken();
     await setSession(c, orderToken, order, sessionTimeout);
     redirectUrl = 'https://smartglasscountry.com/contact-form';
-    //redirectUrl = 'https://smartglasscountry.com/product-detail?country=true';
   } else {
     await setSession(c, orderToken, order, sessionTimeout);
 
@@ -76,7 +75,6 @@ order.post('/', async (c) => {
   }
   return c.json({
     orderToken: orderToken,
-    //redirectUrl: 'https://smartglasscountry.com/product-detail?country=true',
     redirectUrl: redirectUrl,
   });
 });

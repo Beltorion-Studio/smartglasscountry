@@ -9,7 +9,6 @@ import { getOrderToken } from './utils/utilities';
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded');
     resetForm()
     new CalculatorUI(isNewOrder);
   });

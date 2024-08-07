@@ -10,7 +10,6 @@ import { OrderTableManager } from './components/OrderTableManager';
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded');
     displayOrders();
   });
 });

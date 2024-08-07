@@ -25,14 +25,12 @@ form.post('/', async (c) => {
     } else {
       redirectUrl = 'https://smartglasscountry.com/product-detail?country=false';
     }
-    console.log(sanitizedForm);
     const order = (await getSession(c, sanitizedForm.orderToken)) as OrderData;
     console.log(order);
-    const payload = generateSalesforcePayload(sanitizedForm, order);
-    console.log(payload);
+    //const payload = generateSalesforcePayload(sanitizedForm, order);
+    //console.log(payload);
 
     const insertFormToDb = await insertFormData(c.env.DB, sanitizedForm);
-    console.log(insertFormToDb);
     if (!insertFormToDb.success) {
       throw new Error('Failed to insert form data into the database');
     }
@@ -47,8 +45,6 @@ form.post('/', async (c) => {
     if (!insertOrderToDbSuccess) {
       throw new Error('Failed to insert Order data into the database');
     }
-    // send form data to salesforce api
-    //await sendFormToSalesforce(sanitizedForm);
 
     return c.json({
       success: true,
@@ -139,6 +135,3 @@ async function salesforce({ env }: { env: Bindings['env'] }) {
 */
 
 export { form };
-function sendOrderDetailsEmail(order: OrderData, orderToken: any, arg2: boolean, DB: D1Database) {
-  throw new Error('Function not implemented.');
-}

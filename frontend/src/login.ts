@@ -3,7 +3,6 @@ import { globalSettings } from 'src/settings/globalSettings';
 document.addEventListener('DOMContentLoaded', function () {
   window.Webflow ||= [];
   window.Webflow.push(() => {
-    console.log('DOM content loaded');
     logIn();
   });
 });

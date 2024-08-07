@@ -9,7 +9,6 @@ import { Bindings, OrderData } from '../types/types';
 const checkOut = new Hono<{ Bindings: Bindings }>();
 
 checkOut.get('/', async (c) => {
-  //return a text
   return c.text('Checkout route');
 });
 
