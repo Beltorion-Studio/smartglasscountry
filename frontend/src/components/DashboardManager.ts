@@ -16,7 +16,6 @@ export class DashboardManager {
     this.setupLogOutButtonListener();
     this.errorMessageUI = new ErrorMessageUI();
     this.apiService = new ApiServices(globalSettings.dasboardUrl);
-   // this.apiService = new ApiServices('http://127.0.0.1:8787/dashboard');
     this.initializeDashboardValues().catch(console.error);
   }
 
@@ -39,7 +38,7 @@ export class DashboardManager {
     }
 
     try {
-      const response = await fetch('https://backend.beltorion.workers.dev/dashboard', {
+      const response = await fetch('https://backend.smartglasscountry.workers.dev/dashboard', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

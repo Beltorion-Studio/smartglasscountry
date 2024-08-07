@@ -21,9 +21,9 @@ form.post('/', async (c) => {
     const { location } = sanitizedForm;
     let redirectUrl;
     if (location === 'usaCanada') {
-      redirectUrl = 'https://smartglass.webflow.io/product-detail?country=true';
+      redirectUrl = 'https://smartglasscountry.com/product-detail?country=true';
     } else {
-      redirectUrl = 'https://smartglass.webflow.io/product-detail?country=false';
+      redirectUrl = 'https://smartglasscountry.com/product-detail?country=false';
     }
     console.log(sanitizedForm);
     const order = (await getSession(c, sanitizedForm.orderToken)) as OrderData;

@@ -24,7 +24,7 @@ async function sendRemainderEmail(env: Bindings): Promise<void> {
   for (const order of expiringOrders) {
     const orderNumber = formatOrderNumber(order.order_id);
 
-    const senderEmail: string = 'viktor@email.beltorion.com';
+    const senderEmail: string = 'sergiu@smartglasscountry.com';
     const recipientEmail: string = order.email;
     const customerName: string = order.user_name;
     const subjectText: string = `Hello ${customerName}, your order with order id #${orderNumber} will expire soon.`;

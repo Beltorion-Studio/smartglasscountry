@@ -67,16 +67,16 @@ order.post('/', async (c) => {
   if (!orderToken) {
     orderToken = generateUniqueToken();
     await setSession(c, orderToken, order, sessionTimeout);
-    redirectUrl = 'https://smartglass.webflow.io/contact-form';
-    //redirectUrl = 'https://smartglass.webflow.io/product-detail?country=true';
+    redirectUrl = 'https://smartglasscountry.com/contact-form';
+    //redirectUrl = 'https://smartglasscountry.com/product-detail?country=true';
   } else {
     await setSession(c, orderToken, order, sessionTimeout);
 
-    redirectUrl = 'https://smartglass.webflow.io/product-detail';
+    redirectUrl = 'https://smartglasscountry.com/product-detail';
   }
   return c.json({
     orderToken: orderToken,
-    //redirectUrl: 'https://smartglass.webflow.io/product-detail?country=true',
+    //redirectUrl: 'https://smartglasscountry.com/product-detail?country=true',
     redirectUrl: redirectUrl,
   });
 });

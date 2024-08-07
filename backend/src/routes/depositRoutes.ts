@@ -44,8 +44,8 @@ deposit.post('/', async (c) => {
         orderToken,
         isDeposit: 'true',
       },
-      success_url: `https://smartglass.webflow.io/smart-center/order-success?orderCompleted=true`,
-      cancel_url: 'https://smartglass.webflow.io/smart-center/order-canceled',
+      success_url: `https://smartglasscountry.com/smart-center/order-success?orderCompleted=true`,
+      cancel_url: 'https://smartglasscountry.com/smart-center/order-canceled',
     });
     return c.json({ sessionId: session.id });
   } catch (error) {
