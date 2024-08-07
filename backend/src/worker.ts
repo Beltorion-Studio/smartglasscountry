@@ -8,7 +8,6 @@ import { deposit } from './routes/depositRoutes';
 import { form } from './routes/formRoutes';
 import logIn from './routes/logInRoutes';
 import { order } from './routes/orderRoutes';
-import { sample } from './routes/sampleRoutes';
 import webhook from './routes/webhook';
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -29,7 +28,6 @@ app.route('/order', order);
 app.route('/dashboard', dashboard);
 app.route('/form', form);
 app.route('/login', logIn);
-app.route('/samples', sample);
 app.route('/checkout', checkOut);
 app.route('/webhook', webhook);
 app.route('/deposit', deposit);

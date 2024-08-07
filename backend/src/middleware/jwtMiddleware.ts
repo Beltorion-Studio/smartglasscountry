@@ -3,10 +3,8 @@ import { verify } from 'hono/jwt';
 
 export const authMiddleware: MiddlewareHandler = async (c: Context, next: Next) => {
   // Extract the Authorization header
-  console.log('Authorization');
 
   const authHeader = c.req.header('Authorization');
-  console.log(authHeader);
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({
       success: false,

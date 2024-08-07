@@ -3,7 +3,6 @@ import { ApiServices } from 'src/services/ApiServices';
 import { ZodError } from 'zod';
 import { globalSettings } from 'src/settings/globalSettings';
 import { states } from 'src/settings/states';
-import { Interaction } from '@finsweet/ts-utils';
 import { getOrderToken } from '$utils/utilities';
 
 export class FormManager {
@@ -29,8 +28,6 @@ export class FormManager {
     this.form.addEventListener('input', () => this.validateForm());
     this.addEventListenerToCountrytSelector();
     this.statesDropdown.style.display = 'none';
-    // this.statesDropdown.remove();
-    // this.changeStateOptions();
   }
 
   private validateForm(): void {
@@ -54,14 +51,12 @@ export class FormManager {
     if (!this.submitButton.disabled) {
       const formData = new FormData(this.form);
       const formObject = Object.fromEntries(formData.entries());
-      console.log(formObject);
 
       const orderToken = getOrderToken();
       if (!orderToken) return;
       formObject['orderToken'] = orderToken;
       try {
         const response = await this.formService.sendData(formObject);
-        console.log(response);
         if (response.success) {
           window.location.href = response.redirectUrl;
           console.log('Form submitted successfully');
@@ -79,15 +74,12 @@ export class FormManager {
       console.log('Country changed to:', this.countrySelector.value);
       if (this.countrySelector.value === 'usa') {
         this.statesDropdown.style.display = 'block';
-        // this.hideShowStateSelector(true);
         this.changeStateOptions(states.statesOfUsa);
       } else if (this.countrySelector.value === 'canada') {
-        // this.hideShowStateSelector(true);
         this.statesDropdown.style.display = 'block';
         this.changeStateOptions(states.provincesAndTerritoriesOfCanada);
       } else {
         this.statesDropdown.style.display = 'none';
-        // this.hideShowStateSelector(false);
       }
     });
   }
@@ -114,6 +106,6 @@ export class FormManager {
   }
 
   public initialize(): void {
-    this.validateForm();
+   this.validateForm();
   }
 }
