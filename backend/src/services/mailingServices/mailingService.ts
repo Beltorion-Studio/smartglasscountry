@@ -4,10 +4,17 @@ async function sendEmail(
   senderEmail: string,
   recipientEmail: string,
   subject: string,
-  html: string
+  html: string,
+  RESEND_API_KEY: string
 ): Promise<Response | void> {
   try {
-    const response = await sendEmailWithResend(senderEmail, recipientEmail, subject, html);
+    const response = await sendEmailWithResend(
+      senderEmail,
+      recipientEmail,
+      subject,
+      html,
+      RESEND_API_KEY
+    );
     console.log(response);
     return response;
   } catch (error) {

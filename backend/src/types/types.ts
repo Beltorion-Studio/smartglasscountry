@@ -13,6 +13,7 @@ type Bindings = {
   DB: D1Database;
   ADMIN_PASSWORD: string;
   ADMIN_EMAIL: string;
+  RESEND_API_KEY: string;
 };
 
 type FormData = z.infer<typeof formSchema>;
