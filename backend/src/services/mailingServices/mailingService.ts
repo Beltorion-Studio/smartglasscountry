@@ -1,24 +1,48 @@
+import { FormData } from '../../types/types';
+import { generateFormSubmissionEmail } from './emailTemplates/formSubmissionTemplate';
 import { sendEmailWithResend } from './sendMailWithResend';
 
 async function sendEmail(
-  senderEmail: string,
   recipientEmail: string,
-  subject: string,
+  customerSubject: string,
+  companySubject: string,
   html: string,
   RESEND_API_KEY: string
 ): Promise<Response | void> {
   try {
-    const response = await sendEmailWithResend(
-      senderEmail,
+    const companyEmail = 'info@smartglasscountry.com';
+
+    // Send email to the customer
+    const customerResponse = await sendEmailWithResend(
       recipientEmail,
-      subject,
+      customerSubject,
       html,
       RESEND_API_KEY
     );
-    console.log(response);
-    return response;
+
+    // Send email to the company
+    const companyResponse = await sendEmailWithResend(
+      companyEmail,
+      companySubject,
+      html,
+      RESEND_API_KEY
+    );
+    console.log('Company email response:', companyResponse);
+
+    return customerResponse; // You might want to return both responses or handle them differently
   } catch (error) {
-    console.error('Error initializing mailing service:', error);
+    console.error('Error sending emails:', error);
   }
 }
-export { sendEmail };
+
+async function sendFormSubmissionEmail(
+  formData: Omit<FormData, 'orderToken'>,
+  RESEND_API_KEY: string
+): Promise<Response | void> {
+  const recipientEmail = 'info@smartglasscountry.com';
+  const subject = 'New Calculator Form Submission';
+  const html = generateFormSubmissionEmail(formData);
+  const response = await sendEmailWithResend(recipientEmail, subject, html, RESEND_API_KEY);
+  return response;
+}
+export { sendEmail, sendFormSubmissionEmail };

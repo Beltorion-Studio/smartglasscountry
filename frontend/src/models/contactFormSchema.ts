@@ -1,4 +1,12 @@
-import { z } from 'zod';
+// Declare the global Zod object
+declare global {
+  interface Window {
+    Zod: typeof import('zod');
+  }
+}
+
+// Use the global Zod object
+const z = window.Zod;
 
 export const formSchema = z
   .object({

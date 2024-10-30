@@ -1,9 +1,10 @@
 import { formSchema } from 'src/models/contactFormSchema';
 import { ApiServices } from 'src/services/ApiServices';
-import { ZodError } from 'zod';
 import { globalSettings } from 'src/settings/globalSettings';
 import { states } from 'src/settings/states';
 import { getOrderToken } from '$utils/utilities';
+
+const z = window.Zod;
 
 export class FormManager {
   private form: HTMLFormElement;
@@ -32,14 +33,14 @@ export class FormManager {
 
   private validateForm(): void {
     const formData = new FormData(this.form);
-    const formObject = Object.fromEntries(formData.entries());
+    const data = Object.fromEntries(formData.entries());
 
     try {
-      formSchema.parse(formObject);
+      formSchema.parse(data);
       this.submitButton.disabled = false;
     } catch (error) {
       this.submitButton.disabled = true;
-      if (error instanceof ZodError) {
+      if (error instanceof z.ZodError) {
         console.error(error.errors);
       }
     }

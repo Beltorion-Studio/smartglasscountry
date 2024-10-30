@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 
 import { formSchema } from '../models/contactFormSchema';
 import { insertFormData, insertOrder } from '../services/D1DatabaseOperations';
+import { sendFormSubmissionEmail } from '../services/mailingServices/mailingService';
 import sanitizeData from '../services/sanitizeData';
 import { getSession } from '../services/session';
 import { Bindings } from '../types/types';
@@ -26,9 +27,9 @@ form.post('/', async (c) => {
       redirectUrl = 'https://smartglasscountry.com/product-detail?country=false';
     }
     const order = (await getSession(c, sanitizedForm.orderToken)) as OrderData;
-    console.log(order);
-    //const payload = generateSalesforcePayload(sanitizedForm, order);
-    //console.log(payload);
+    console.log('order', order);
+    const payload = await generateSalesforcePayload(sanitizedForm, order);
+    console.log('formData', payload[sanitizedForm.orderToken].formData);
 
     const insertFormToDb = await insertFormData(c.env.DB, sanitizedForm);
     if (!insertFormToDb.success) {
@@ -45,6 +46,8 @@ form.post('/', async (c) => {
     if (!insertOrderToDbSuccess) {
       throw new Error('Failed to insert Order data into the database');
     }
+    const { formData } = payload[sanitizedForm.orderToken];
+    await sendFormSubmissionEmail(formData, c.env.RESEND_API_KEY);
 
     return c.json({
       success: true,
@@ -79,7 +82,10 @@ function calculateTotalSqft(products: Product[]): number {
   return parseFloat(totalsqft.toFixed(2));
 }
 
-function generateSalesforcePayload(formData: FormData, orderData: OrderData): Payload {
+async function generateSalesforcePayload(
+  formData: FormData,
+  orderData: OrderData
+): Promise<Payload> {
   const payload: Payload = {
     [formData.orderToken]: {
       formData: {

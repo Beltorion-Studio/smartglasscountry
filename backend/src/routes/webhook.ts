@@ -29,8 +29,6 @@ webhook.post('/', async (c) => {
   let event;
   try {
     const webhookRawBody = await c.req.text();
-    console.log('Stripe Signature:', webhookStripeSignatureHeader);
-    console.log('Stripe webhookSecret:', webhookSecret);
 
     // Verify the event by signing secret
     event = await stripeClient.webhooks.constructEventAsync(
@@ -95,19 +93,29 @@ async function sendOrderDetailsEmail(
     !userInfo.success ||
     !userInfo.email ||
     !userInfo.userName ||
-    !userInfo.orderId
+    !userInfo.orderId ||
+    !userInfo.phone
   ) {
     throw new Error('Failed to get user info');
   }
 
-  const senderEmail: string = 'info@mail2.smartglasscountry.com';
   const recipientEmail: string = userInfo.email;
   const customerName: string = userInfo.userName;
+  const customerPhone: string = userInfo.phone;
   const formattedOrderId: string = formatOrderId(userInfo.orderId);
   const subjectText: string = isDeposit ? 'deposit' : 'order';
   const html = buildOrderConfirmationTemplate(order, customerName, formattedOrderId, isDeposit);
-  const subject: string = `Hello ${customerName}, your ${subjectText} has been processed`;
-  const response = await sendEmail(senderEmail, recipientEmail, subject, html, RESEND_API_KEY);
+  const customerSubject: string = `Hello ${customerName}, your ${subjectText} has been processed`;
+  const companySubject: string = isDeposit
+    ? `You got a new deposit order from ${customerName}. The phone number is: ${customerPhone}. The Email is ${recipientEmail}.`
+    : `You got a new order from ${customerName}. The phone number is: ${customerPhone}. The Email is ${recipientEmail}.`;
+  const response = await sendEmail(
+    recipientEmail,
+    customerSubject,
+    companySubject,
+    html,
+    RESEND_API_KEY
+  );
   if (!response) {
     throw new Error('Failed to send email');
   }

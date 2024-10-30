@@ -115,18 +115,27 @@ async function sendOrderDetailsEmail(
     !userInfo.success ||
     !userInfo.email ||
     !userInfo.userName ||
-    !userInfo.orderId
+    !userInfo.orderId ||
+    !userInfo.phone
   ) {
     throw new Error('Failed to get user info');
   }
 
-  const senderEmail: string = 'info@mail2.smartglasscountry.com';
   const recipientEmail: string = userInfo.email;
   const customerName: string = userInfo.userName;
+  const customerPhone: string = userInfo.phone;
 
   const html = buildOrderDetailsTemplate(order, customerName);
-  const subject: string = `Hello ${customerName}, your have some items in your shopping cart.`;
-  const response = await sendEmail(senderEmail, recipientEmail, subject, html, RESEND_API_KEY);
+  const customerSubject: string = `Hello ${customerName}, you have some items in your shopping cart.`;
+  const companySubject: string = `You got a new order from ${customerName}. The phone number is: ${customerPhone}. The Email is ${recipientEmail}.`;
+
+  const response = await sendEmail(
+    recipientEmail,
+    customerSubject,
+    companySubject,
+    html,
+    RESEND_API_KEY
+  );
   if (!response) {
     throw new Error('Failed to send email');
   }

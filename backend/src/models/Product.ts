@@ -57,20 +57,22 @@ export class Product {
   }
 
   private getSquareFootage(): number {
-    const squareFootage = (this.width * this.height) / 144;
+    const squareFootage = Number(((this.width * this.height) / 144).toFixed(2)) * this.quantity;
     return Number(squareFootage.toFixed(2));
   }
 
   private getSquareMeterage(): number {
-    const squareMeterage = (this.width * this.height) / 1000000;
+    const squareMeterage =
+      Number(((this.width * this.height) / 1000000).toFixed(2)) * this.quantity;
     return Number(squareMeterage.toFixed(2));
   }
 
   getTotalPrice(): number {
-    let totalPrice = this.size * Number(this.quantity) * Number(this.unitPrice);
+    let totalPrice = this.size * Number(this.unitPrice);
 
     if (this.unitOfMeasurement === 'mm') {
-      totalPrice = totalPrice * 10.7639;
+      const squareMeterToSquareFootConversionFactor = 10.7639;
+      totalPrice = totalPrice * squareMeterToSquareFootConversionFactor;
     }
 
     return Number(totalPrice.toFixed(2));

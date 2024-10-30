@@ -1,9 +1,15 @@
 import { FormManager } from './components/FormManager';
 
-document.addEventListener('DOMContentLoaded', function () {
-  window.Webflow ||= [];
-  window.Webflow.push(() => {
+function initializeForm() {
+  if (window.Zod) {
     const formValidator = new FormManager('#wf-form-Contact-Details');
     formValidator.initialize();
-  });
+  } else {
+    setTimeout(initializeForm, 50); // Check again in 50ms
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  window.Webflow ||= [];
+  window.Webflow.push(initializeForm);
 });

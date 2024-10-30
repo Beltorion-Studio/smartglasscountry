@@ -213,7 +213,7 @@ async function insertFormData(
 
 async function getUserEmailAndNameByOrderToken(DB: D1Database, orderToken: string) {
   const selectQuery = `
-    SELECT u.user_name, u.email, o.order_id
+    SELECT u.user_name, u.email, u.phone, o.order_id
     FROM users u
     JOIN orders o ON u.user_id = o.user_id
     WHERE o.order_token = ?
@@ -223,16 +223,16 @@ async function getUserEmailAndNameByOrderToken(DB: D1Database, orderToken: strin
 
   if (!userResult || userResult.results.length === 0) {
     console.log('No user found for the given order token.');
-    return { success: false, userName: null, email: null, orderId: null };
+    return { success: false, userName: null, email: null, phone: null, orderId: null };
   }
 
   const user = userResult.results[0];
   const userName = user.user_name as string;
   const email = user.email as string;
   const orderId = user.order_id as number;
-
+  const phone = user.phone as string;
   console.log('User found: ', userName, email, orderId);
-  return { success: true, userName, email, orderId };
+  return { success: true, userName, email, phone, orderId };
 }
 
 async function insertDepositOrder(

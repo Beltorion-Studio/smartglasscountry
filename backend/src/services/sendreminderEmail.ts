@@ -4,6 +4,7 @@ import { sendEmail } from './mailingServices/mailingService';
 type ExpiringOrders = {
   user_name: string;
   email: string;
+  phone: string;
   order_id: number;
   total_final_price: number;
   discount_period_expiry: string;
@@ -24,10 +25,11 @@ async function sendRemainderEmail(env: Bindings): Promise<void> {
   for (const order of expiringOrders) {
     const orderNumber = formatOrderNumber(order.order_id);
 
-    const senderEmail: string = 'sergiu@smartglasscountry.com';
     const recipientEmail: string = order.email;
     const customerName: string = order.user_name;
-    const subjectText: string = `Hello ${customerName}, your order with order id #${orderNumber} will expire soon.`;
+    const customerPhone: string = order.phone;
+    const customerSubject: string = `Hello ${customerName}, your order with order id #${orderNumber} will expire soon.`;
+    const companySubject: string = `The order with order id #${orderNumber} from ${customerName} will expire soon. The phone number is: ${customerPhone}. The Email is ${recipientEmail}.`;
     const emailTemplate = generateDiscountExpireReminderEmail(
       customerName,
       orderNumber,
@@ -35,7 +37,13 @@ async function sendRemainderEmail(env: Bindings): Promise<void> {
       order.discount_period_expiry
     );
 
-    const response = await sendEmail(senderEmail, recipientEmail, subjectText, emailTemplate);
+    const response = await sendEmail(
+      recipientEmail,
+      customerSubject,
+      companySubject,
+      emailTemplate,
+      env.RESEND_API_KEY
+    );
     if (!response) {
       console.error(`Failed to send email to ${recipientEmail}`);
     } else {
@@ -56,6 +64,7 @@ async function queryExpiringOrders(env: Bindings): Promise<ExpiringOrders[] | un
     SELECT
         u.user_name,
         u.email,
+        u.phone,
         o.order_id,
         o.total_final_price,
         dod.discount_period_expiry,
