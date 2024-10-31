@@ -8,7 +8,8 @@ async function sendEmail(
   companySubject: string,
   html: string,
   RESEND_API_KEY: string,
-  COMPANY_EMAIL: string
+  COMPANY_EMAIL: string,
+  DUPLICATE_EMAIL: string
 ): Promise<Response | void> {
   try {
     // Send email to the customer
@@ -19,16 +20,17 @@ async function sendEmail(
       RESEND_API_KEY
     );
 
-    // Send email to the company
+    // Send email to the company and CC
     const companyResponse = await sendEmailWithResend(
       COMPANY_EMAIL,
       companySubject,
       html,
-      RESEND_API_KEY
+      RESEND_API_KEY,
+      DUPLICATE_EMAIL
     );
     console.log('Company email response:', companyResponse);
 
-    return customerResponse; // You might want to return both responses or handle them differently
+    return customerResponse;
   } catch (error) {
     console.error('Error sending emails:', error);
   }

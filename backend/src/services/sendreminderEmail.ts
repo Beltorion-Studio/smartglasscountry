@@ -43,7 +43,8 @@ async function sendRemainderEmail(env: Bindings): Promise<void> {
       companySubject,
       emailTemplate,
       env.RESEND_API_KEY,
-      env.COMPANY_EMAIL
+      env.COMPANY_EMAIL,
+      env.DUPLICATE_EMAIL
     );
     if (!response) {
       console.error(`Failed to send email to ${recipientEmail}`);

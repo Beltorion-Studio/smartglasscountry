@@ -62,7 +62,8 @@ webhook.post('/', async (c) => {
           true,
           c.env.DB,
           c.env.RESEND_API_KEY,
-          c.env.COMPANY_EMAIL
+          c.env.COMPANY_EMAIL,
+          c.env.DUPLICATE_EMAIL
         );
         const insertDepositOrderToDB = await insertDepositOrder(c.env.DB, order, orderToken);
         if (!insertDepositOrderToDB) {
@@ -75,7 +76,8 @@ webhook.post('/', async (c) => {
           false,
           c.env.DB,
           c.env.RESEND_API_KEY,
-          c.env.COMPANY_EMAIL
+          c.env.COMPANY_EMAIL,
+          c.env.DUPLICATE_EMAIL
         );
       }
 
@@ -100,7 +102,8 @@ async function sendOrderDetailsEmail(
   isDeposit: boolean,
   DB: D1Database,
   RESEND_API_KEY: string,
-  COMPANY_EMAIL: string
+  COMPANY_EMAIL: string,
+  DUPLICATE_EMAIL: string
 ): Promise<void> {
   const userInfo = await getUserEmailAndNameByOrderToken(DB, orderToken);
   if (
@@ -130,7 +133,8 @@ async function sendOrderDetailsEmail(
     companySubject,
     html,
     RESEND_API_KEY,
-    COMPANY_EMAIL
+    COMPANY_EMAIL,
+    DUPLICATE_EMAIL
   );
   if (!response) {
     throw new Error('Failed to send email');
