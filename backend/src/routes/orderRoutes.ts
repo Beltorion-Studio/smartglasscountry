@@ -91,7 +91,13 @@ order.get('/', async (c) => {
     return c.json({ error: 'Order not found' }, { status: 404 });
   }
   if (pageIdentifier !== 'calculator') {
-    await sendOrderDetailsEmail(order, orderToken, c.env.DB, c.env.RESEND_API_KEY);
+    await sendOrderDetailsEmail(
+      order,
+      orderToken,
+      c.env.DB,
+      c.env.RESEND_API_KEY,
+      c.env.COMPANY_EMAIL
+    );
   }
 
   // console.log(order);
@@ -107,7 +113,8 @@ async function sendOrderDetailsEmail(
   order: OrderData,
   orderToken: string,
   DB: D1Database,
-  RESEND_API_KEY: string
+  RESEND_API_KEY: string,
+  COMPANY_EMAIL: string
 ): Promise<void> {
   const userInfo = await getUserEmailAndNameByOrderToken(DB, orderToken);
   if (
@@ -134,7 +141,8 @@ async function sendOrderDetailsEmail(
     customerSubject,
     companySubject,
     html,
-    RESEND_API_KEY
+    RESEND_API_KEY,
+    COMPANY_EMAIL
   );
   if (!response) {
     throw new Error('Failed to send email');

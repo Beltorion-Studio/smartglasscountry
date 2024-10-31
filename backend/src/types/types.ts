@@ -14,6 +14,7 @@ type Bindings = {
   ADMIN_PASSWORD: string;
   ADMIN_EMAIL: string;
   RESEND_API_KEY: string;
+  COMPANY_EMAIL: string;
 };
 
 type FormData = z.infer<typeof formSchema>;

@@ -7,11 +7,10 @@ async function sendEmail(
   customerSubject: string,
   companySubject: string,
   html: string,
-  RESEND_API_KEY: string
+  RESEND_API_KEY: string,
+  COMPANY_EMAIL: string
 ): Promise<Response | void> {
   try {
-    const companyEmail = 'info@smartglasscountry.com';
-
     // Send email to the customer
     const customerResponse = await sendEmailWithResend(
       recipientEmail,
@@ -22,7 +21,7 @@ async function sendEmail(
 
     // Send email to the company
     const companyResponse = await sendEmailWithResend(
-      companyEmail,
+      COMPANY_EMAIL,
       companySubject,
       html,
       RESEND_API_KEY
